@@ -18,8 +18,8 @@ import re
 import time
 from collections import OrderedDict
 
-# from skimage.measure import label as sklabel
-# from skimage.measure import find_contours
+from skimage.measure import label as sklabel
+from skimage.measure import find_contours
 
 class IO_Object(object):
     """ holds all IO functionality """
@@ -382,7 +382,6 @@ class IO_Object(object):
         self.Main.ROIs.reset()
         # since OpenFileDialog can allow selection of multiple files, select the first one
         masks = io.read_tiffstack(paths[0])
-
 
         # skimage based segmentation
         masks_thresh = masks > thresh
