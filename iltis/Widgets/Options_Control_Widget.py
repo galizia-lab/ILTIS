@@ -47,7 +47,7 @@ class Options_Control_Widget(QtWidgets.QTabWidget):
         ### ROI
         FormLayout = self.make_tab('ROI')
         FormLayout.addRow('ROI default diameter',SingleValueWidget(self,'ROI','diameter','i'))
-        FormLayout.addRow('ROI type',StringChoiceWidget(self,'ROI','type',choices=['circle','polygon']))
+        FormLayout.addRow('ROI type',StringChoiceWidget(self,'ROI','type',choices=['circle','polygon','polygon-multiclick']))
         FormLayout.addRow('show ROI labels',BooleanChoiceWidget(self,'ROI','show_labels'))
 
         ### export
