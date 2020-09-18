@@ -26,6 +26,7 @@ class ROIs_Object(QtCore.QObject):
 
         self.Main = Main
         self.ROI_list = []
+        self.multi_click_rois = []
         pass
 
     def reset(self):
@@ -53,6 +54,15 @@ class ROIs_Object(QtCore.QObject):
         ROI = evt.sender()
         self.remove_ROI(ROI)
         pass
+
+    def clean_up_multiclick_rois(self):
+
+        for pos, temp_roi in self.multi_click_rois:
+            for child in temp_roi.children:
+                self.Main.MainWindow.Data_Display.Frame_Visualizer.scene().removeItem(child)
+            self.Main.MainWindow.Data_Display.Frame_Visualizer.scene().removeItem(temp_roi)
+
+        self.multi_click_rois = []
 
 
     def add_ROI(self,label=None,kind=None,pos=None,ROI_diameter=None,pos_list=None,contour=None,mask=None):
@@ -87,6 +97,21 @@ class ROIs_Object(QtCore.QObject):
             if pos_list == None:
                 pos_list = [[pos[0]-ROI_diameter,pos[1]-ROI_diameter], [pos[0]+ROI_diameter,pos[1]-ROI_diameter], [pos[0]+ROI_diameter,pos[1]+ROI_diameter], [pos[0]-ROI_diameter,pos[1]+ROI_diameter]]
             ROI = myPolyLineROI(pos_list, closed=True, **common_kwargs)
+
+        if kind == 'polygon-multiclick':
+            common_kwargs["label"] = f"vertex{len(self.multi_click_rois) + 1}"
+            temp_roi = myCircleROI(pos, [2, 2], **common_kwargs)
+            self.multi_click_rois.append((pos, temp_roi))
+
+            # deactivate all ROI
+            [roi.deactivate() for roi in self.ROI_list]
+            self.Main.MainWindow.Data_Display.Frame_Visualizer.ViewBox.addItem(temp_roi)
+            return
+            # polygon gets created when "vertex1" gets clicked again, implemented in the method `ROI_clicked` below
+
+        else:
+            self.clean_up_multiclick_rois()
+
 
         if kind == 'nonparametric':
             # reusing PolyLineROI
@@ -215,6 +240,18 @@ class ROIs_Object(QtCore.QObject):
         """ ROI gets activated upon click, if shift click multiple active can be
         selected """
 
+        if self.Main.Options.ROI['type'] == "polygon-multiclick" and ROI.label == "vertex1":
+            if len(self.multi_click_rois) > 2:
+                self.add_ROI(kind="polygon", pos_list=[[pos[0], pos[1]] for pos, x in self.multi_click_rois])
+                # cleanup of self.multi_click_rois happens within the function call above
+            else:
+                self.Main.MainWindow.StatusBar.showMessage(
+                    "Could not create a polygon ROI as the polygon was closed with less than three vertices."
+                    "Discarding current clicks. Try again with more clicks")
+                self.clean_up_multiclick_rois()
+
+            return
+
         modifiers = QtWidgets.QApplication.keyboardModifiers()
 
         if modifiers == QtCore.Qt.ShiftModifier:
@@ -226,6 +263,7 @@ class ROIs_Object(QtCore.QObject):
         self.Main.Options.ROI['last_active'] = ROI
         self.update_active_ROIs()
         self.update_display_settings()
+
         pass
 
 #    def ROI_hover_handler(self,evt):
