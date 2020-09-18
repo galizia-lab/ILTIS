@@ -79,7 +79,14 @@ class Options_Object(QtCore.QObject):
                      'show_monochrome':False,
                      'use_global_levels':False,
                      'trial_labels_on_traces_vis':True,
-                     'color_maps':None,
+                     # lists of default monochrome colormaps for initialization and when multiple datasets are selected
+                     'color_maps_default':None,
+                     # lists to keep track of user selection of colormaps
+                     'color_maps_current_raw': None,
+                     'color_maps_current_dFF': None,
+                     # this flag keeps track whether user changes to colormaps should be remembered
+                     # set to false when multiple datasets are selected or when monochrome mode is ON.
+                     'keep_track_of_colormap_changes': True,
                      'colors':None,
                      'heatmap':None,
                      'graymap':None,
