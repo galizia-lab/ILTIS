@@ -6,6 +6,7 @@ Created on Wed Apr 15 14:59:08 2015
 """
 from PyQt5 import QtWidgets
 import pyqtgraph as pg
+import copy
 
 
 class LUT_Controlers_Widget(QtWidgets.QWidget):
@@ -38,7 +39,10 @@ class LUT_Controlers_Widget(QtWidgets.QWidget):
 
     def init_data(self):
         # calculating colors
-        self.Main.Options.view['colors'],self.Main.Options.view['color_maps'] = self.Main.Processing.calc_colormaps(self.Main.Data.nTrials)
+        self.Main.Options.view['colors'],self.Main.Options.view['color_maps_default'] \
+            = self.Main.Processing.calc_colormaps(self.Main.Data.nTrials)
+        self.Main.Options.view['color_maps_current_raw'] = copy.deepcopy(self.Main.Options.view['color_maps_default'])
+        self.Main.Options.view['color_maps_current_dFF'] = copy.deepcopy(self.Main.Options.view['color_maps_default'])
         # ini and connect
         for n in range(self.Main.Data.nTrials):
             # for raw
@@ -49,7 +53,7 @@ class LUT_Controlers_Widget(QtWidgets.QWidget):
             LUTwidget.setImageItem(self.Data_Display.Frame_Visualizer.ImageItems[n])
             LUTwidget.item.setHistogramRange(self.Main.Data.raw.min(),self.Main.Data.raw.max()) # disables autoscaling
             LUTwidget.item.setLevels(self.raw_levels[n][0],self.raw_levels[n][1])
-            LUTwidget.item.gradient.setColorMap(self.Main.Options.view['color_maps'][n])
+            LUTwidget.item.gradient.setColorMap(self.Main.Options.view['color_maps_default'][n])
             self.LUTwidgets.addWidget(LUTwidget)
 
             # for dFF
@@ -61,7 +65,7 @@ class LUT_Controlers_Widget(QtWidgets.QWidget):
             LUTwidget.item.setHistogramRange(self.Main.Data.dFF.min(),
                                              self.Main.Data.dFF.max())  # disables autoscaling
             LUTwidget.item.setLevels(self.dFF_levels[n][0], self.dFF_levels[n][1])
-            LUTwidget.item.gradient.setColorMap(self.Main.Options.view['color_maps'][n])
+            LUTwidget.item.gradient.setColorMap(self.Main.Options.view['color_maps_default'][n])
             self.LUTwidgets_dFF.addWidget(LUTwidget)
             pass
 
@@ -75,22 +79,76 @@ class LUT_Controlers_Widget(QtWidgets.QWidget):
         pass
 
     def update_display_settings(self):
+
+        # backup colormaps if they were changed by user to a non-default value
+        self.backup_current_colormaps_if_non_default()
+
         # set the colormaps to monochrome + glow
         if self.Main.Options.view['show_monochrome'] == True:
             for i in range(self.Main.Data.nTrials):
                 self.LUTwidgets.widget(i).item.gradient.setColorMap(self.Main.Options.view['graymap'])
                 self.LUTwidgets_dFF.widget(i).item.gradient.setColorMap(self.Main.Options.view['heatmap'])
 
+            self.Main.Options.view['keep_track_of_colormap_changes'] = False
+
         if self.Main.Options.view['show_monochrome'] == False:
+
+            current_data_selections \
+                = [item.row() for item in self.Main.MainWindow.Front_Control_Panel.Data_Selector.selectedItems()]
+
             # restore colors
             for i in range(self.Main.Data.nTrials):
-                self.LUTwidgets.widget(i).item.gradient.setColorMap(self.Main.Options.view['color_maps'][i])
-                self.LUTwidgets_dFF.widget(i).item.gradient.setColorMap(self.Main.Options.view['color_maps'][i])
+                # if only one dataset has been selected, restore backed up colormap (possibly changed by user)
+                if len(current_data_selections) == 1:
+                    colormap2set_raw = self.Main.Options.view['color_maps_current_raw'][i]
+                    colormap2set_dFF = self.Main.Options.view['color_maps_current_dFF'][i]
+
+                    self.Main.Options.view['keep_track_of_colormap_changes'] = True
+
+                # if more than one dataset has been selected, then use default monochrome colormaps
+                else:
+                    colormap2set_raw = colormap2set_dFF = self.Main.Options.view['color_maps_default'][i]
+                    self.Main.Options.view['keep_track_of_colormap_changes'] = False
+
+                self.LUTwidgets.widget(i).item.gradient.setColorMap(colormap2set_raw)
+                self.LUTwidgets_dFF.widget(i).item.gradient.setColorMap(colormap2set_dFF)
 
         # actions from selection_changed
         self.LUTwidgets.setCurrentWidget(self.LUTwidgets.widget(self.Main.Options.view['last_selected']))
         self.LUTwidgets_dFF.setCurrentWidget(self.LUTwidgets_dFF.widget(self.Main.Options.view['last_selected']))
         pass
+
+    def backup_current_colormaps_if_non_default(self):
+        """
+        backup current colormaps that might have been changed by the user to the options
+        view['color_maps_current_raw'] and view['color_maps_current_dFF']
+
+        :return:
+        """
+        
+        # clear previously issued status messages
+        self.Main.MainWindow.StatusBar.clearMessage()
+        
+        if self.Main.Options.view['keep_track_of_colormap_changes']:
+        
+            for i in range(self.Main.Data.nTrials):
+                try:
+                    current_colormap_raw = self.LUTwidgets.widget(i).item.gradient.colorMap()
+                    if current_colormap_raw != self.Main.Options.view['color_maps_default'][i]:
+                        self.Main.Options.view['color_maps_current_raw'][i] = current_colormap_raw
+                except NotImplementedError as nie:
+                    self.Main.MainWindow.StatusBar.showMessage(
+                        f"Warning! Could not keep track of user-selected colormap for data at index {i}"
+                        f" as accessing HSV colormaps is not yet implemented in pyqtgraph")
+
+                try:
+                    current_colormap_dFF = self.LUTwidgets_dFF.widget(i).item.gradient.colorMap()
+                    if current_colormap_dFF != self.Main.Options.view['color_maps_default'][i]:
+                        self.Main.Options.view['color_maps_current_dFF'][i] = current_colormap_dFF
+                except NotImplementedError as nie:
+                    self.Main.MainWindow.StatusBar.showMessage(
+                        f"Warning! Could not keep track of user-selected colormap for data at index {i}"
+                        f" as accessing HSV colormaps is not yet implemented in pyqtgraph")
 
     def reset(self):
         """ reset function """

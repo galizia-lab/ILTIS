@@ -95,6 +95,7 @@ class Data_Selector_Widget(QtWidgets.QTableWidget):
             self.Main.MainWindow.Data_Display.Traces_Visualizer.init_traces()
             self.Main.MainWindow.Data_Display.Traces_Visualizer_Stimsorted.init_traces()
             self.Main.Signals.updateDisplaySettingsSignal.emit()
+
         pass
 
 
