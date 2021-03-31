@@ -47,7 +47,10 @@ class Options_Control_Widget(QtWidgets.QTabWidget):
         ### ROI
         FormLayout = self.make_tab('ROI')
         FormLayout.addRow('ROI default diameter',SingleValueWidget(self,'ROI','diameter','i'))
-        FormLayout.addRow('ROI type',StringChoiceWidget(self,'ROI','type',choices=['circle','polygon','polygon-multiclick']))
+
+        # moved to toolbar
+        # FormLayout.addRow('ROI type',StringChoiceWidget(self,'ROI','type',choices=['circle','polygon','polygon-multiclick']))
+
         FormLayout.addRow('show ROI labels',BooleanChoiceWidget(self,'ROI','show_labels'))
 
         ### export
@@ -97,6 +100,18 @@ class Options_Control_Widget(QtWidgets.QTabWidget):
         self.Main.Signals.updateDisplaySettingsSignal.emit()
         pass
 
+    def option_changed_external(self):
+        """
+        used when a when a widget outside this object wants to change an option. Needs to original from an
+        object of one of the custom widgets below
+        """
+        sender_widget = QtCore.QObject.sender(self)
+        try:
+            self.set_option(sender_widget)
+            self.Main.Signals.updateDisplaySettingsSignal.emit()
+        except AttributeError as ae:
+            pass
+
     def get_options(self):
         for row in self.get_rows():
             widget = row[1]
@@ -107,7 +122,11 @@ class Options_Control_Widget(QtWidgets.QTabWidget):
     def set_options(self):
         for row in self.get_rows():
             widget = row[1]
-            getattr(self.Main.Options,widget.dict_name)[widget.param_name] = widget.get_value()
+            self.set_option(widget)
+
+    def set_option(self, widget):
+
+        getattr(self.Main.Options, widget.dict_name)[widget.param_name] = widget.get_value()
 
 
 #==============================================================================

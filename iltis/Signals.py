@@ -36,14 +36,16 @@ class Signals(QtCore.QObject):
             self.Main.MainWindow.Data_Display.Traces_Visualizer_Stimsorted,
             self.Main.MainWindow.Front_Control_Panel.Data_Selector,
             self.Main.MainWindow.Front_Control_Panel.ROI_Manager,
-            self.Main.MainWindow.Options_Control]
+            self.Main.MainWindow.Options_Control
+        ]
             
         self.non_GUI_Objects = [
             self.Main.Options,
             self.Main.Processing,
             self.Main.IO,
             self.Main.Data,
-            self.Main.ROIs]
+            self.Main.ROIs
+        ]
 
         # reset signal
         for GUI_Object in self.GUI_Objects:
