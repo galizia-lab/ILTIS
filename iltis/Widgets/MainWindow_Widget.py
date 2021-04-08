@@ -8,7 +8,7 @@ import os
 from PyQt5 import QtCore, QtWidgets, QtGui
 from .Data_Display_Widget import Data_Display_Widget
 from .Front_Control_Panel_Widget import Front_Control_Panel_Widget
-from .Options_Control_Widget import Options_Control_Widget
+from .Options_Control_Widget import Options_Control_Widget, StringChoiceWidget
 import scipy as sp
 
 
@@ -21,6 +21,7 @@ class MainWindow_Widget(QtWidgets.QMainWindow):
 
         self.MenuBar = None
         self.ToolBar = None
+        self.toolbar_widgets = []
         self.StatusBar = None
         self.Data_Display = None
         self.Front_Control_Panel = None
@@ -33,12 +34,13 @@ class MainWindow_Widget(QtWidgets.QMainWindow):
         # initializations
         self.setup_Actions()
         self.setup_MenuBar()
-        self.setup_ToolBar()
         self.setup_StatusBar()
 
         # init
         self.init_UI()
-        pass
+
+        # setup toolbar far init_UI() as some widgets of toolbar needs objects created and inited by init_UI()
+        self.setup_ToolBar()
 
     def init_UI(self):
         """ """
@@ -109,18 +111,41 @@ class MainWindow_Widget(QtWidgets.QMainWindow):
 
     def setup_ToolBar(self):
 
-        # spacer widget for right, have to be two different objects
-        spacers = [QtWidgets.QWidget(),QtWidgets.QWidget()]
+        # spacer widgets have to be two different objects
+        # these are put to the beginning and end and made expandable to center everything in the toolbar
+        spacers = [QtWidgets.QWidget(), QtWidgets.QWidget()]
         for spacer in spacers:
             spacer.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
         self.ToolBar = self.addToolBar('Hide')
+
         self.ToolBar.addWidget(spacers[0])
+        self.ToolBar.addSeparator()
+
         self.ToolBar.addAction(self.toggledFFAction)
         self.ToolBar.addAction(self.toggleMonochromeAction)
         self.ToolBar.addAction(self.toggleAvgAction)
         self.ToolBar.addAction(self.toggleGlobalLevels)
         self.ToolBar.addAction(self.OpenOptionsAction)
+
+        self.ToolBar.addSeparator()
+
+        roi_type_widget = QtWidgets.QWidget()
+        hlayout = QtWidgets.QHBoxLayout(roi_type_widget)
+
+        hlayout.addWidget(QtWidgets.QLabel("ROI type"))
+
+        choice_widget = StringChoiceWidget(self, 'ROI', 'type', choices=['circle', 'polygon', 'polygon-multiclick'])
+        choice_widget.currentIndexChanged.connect(self.Options_Control.option_changed_external)
+
+        hlayout.addWidget(choice_widget)
+        roi_type_widget.setEnabled(False)
+        self.ToolBar.addWidget(roi_type_widget)
+
+        self.toolbar_widgets.append(roi_type_widget)
+
+        self.ToolBar.addSeparator()
+
         self.ToolBar.addWidget(spacers[1])
         pass
 
@@ -324,9 +349,13 @@ class MainWindow_Widget(QtWidgets.QMainWindow):
 
     def enable_actions(self):
         """ enable disabled options """
-        for name,settings in self.Actions.items():
-            if settings['no_data_disabled'] == True:
-                getattr(self,name).setEnabled(True)
+        for name, settings in self.Actions.items():
+            if settings['no_data_disabled']:
+                getattr(self, name).setEnabled(True)
+
+        for widget in self.toolbar_widgets:
+            widget.setEnabled(True)
+
 
     ### togglers view mode
     def toggle_dFF(self):

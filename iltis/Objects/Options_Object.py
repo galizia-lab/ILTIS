@@ -8,10 +8,14 @@ import sys, os
 from PyQt5 import QtCore
 import scipy as sp
 
+
 class Options_Object(QtCore.QObject):
     """ no gui, holds only the options! """
     def __init__(self,Main):
         """ """
+
+        super().__init__()
+
         self.Main = Main
 
         # emtpy dicts for all the options
@@ -23,6 +27,18 @@ class Options_Object(QtCore.QObject):
         self.export = {} # all export options
         self.ROI = {} # all ROI related options
         self.flags = {} # all misc flags
+
+        self.all_options_names = [
+            "general",
+            "view",
+            "preprocessing",
+            "export",
+            "ROI",
+            "flags",
+            # these two have not yet been used, not even initialized, remain empty always
+            # "registration",
+            # "segmentation",
+        ]
 
         # needed to be visible
         self.QtCompositionModes = ['SourceOver','DestinationOver','Clear',
@@ -40,6 +56,10 @@ class Options_Object(QtCore.QObject):
 
         pass
     pass
+
+    def is_initialized(self):
+
+        return not any(len(getattr(self, x)) == 0 for x in self.all_options_names)
 
     def init_data(self):
        pass
