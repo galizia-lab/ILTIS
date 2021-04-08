@@ -106,12 +106,15 @@ class ROIs_Object(QtCore.QObject):
             # deactivate all ROI
             [roi.deactivate() for roi in self.ROI_list]
             self.Main.MainWindow.Data_Display.Frame_Visualizer.ViewBox.addItem(temp_roi)
+            self.Main.MainWindow.Data_Display.set_tooltip(
+                "Click to add another vertex of the polygon.\n"
+                "Otherwise, click on vertex1 to close the polygon and create it")
             return
             # polygon gets created when "vertex1" gets clicked again, implemented in the method `ROI_clicked` below
 
         else:
             self.clean_up_multiclick_rois()
-
+            self.Main.MainWindow.Data_Display.set_tooltip()  # set default tool tip
 
         if kind == 'nonparametric':
             # reusing PolyLineROI
@@ -245,11 +248,14 @@ class ROIs_Object(QtCore.QObject):
                 self.add_ROI(kind="polygon", pos_list=[[pos[0], pos[1]] for pos, x in self.multi_click_rois])
                 # cleanup of self.multi_click_rois happens within the function call above
             else:
-                self.Main.MainWindow.StatusBar.showMessage(
-                    "Could not create a polygon ROI as the polygon was closed with less than three vertices."
-                    "Discarding current clicks. Try again with more clicks")
+                msg = \
+                    "Could not create a polygon ROI as the polygon was closed with less than three vertices."\
+                    "Discarding current clicks. Try again with more clicks"
+                self.Main.MainWindow.StatusBar.showMessage(msg)
+                QtWidgets.QMessageBox.critical(self.Main.MainWindow, "Error creating polygon ROI!", msg)
                 self.clean_up_multiclick_rois()
 
+            self.Main.MainWindow.Data_Display.set_tooltip()  # reset tooltip message to default
             return
 
         modifiers = QtWidgets.QApplication.keyboardModifiers()

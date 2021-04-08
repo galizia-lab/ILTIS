@@ -30,6 +30,8 @@ class Data_Display_Widget(QtWidgets.QMainWindow): # needs to be a QMainWindow to
 
         self.interaction_enabled = False
 
+        self.tooltip_string = ""
+
         self.init_UI()
         pass
 
@@ -102,6 +104,14 @@ class Data_Display_Widget(QtWidgets.QMainWindow): # needs to be a QMainWindow to
                 vline.sigPositionChanged.connect(traces_visualizer_stimsorted.vline_pos_changed)
 
             self.interaction_enabled = True
+
+            self.set_tooltip()
+
+    def set_tooltip(self, tooltip=None):
+        if tooltip is None:
+            tooltip = "Click anywhere to create a ROI or\nclick inside an existing ROI to select it"
+
+        self.Frame_Visualizer.setToolTip(tooltip)
 
 
 class myDock(pgd.Dock):
