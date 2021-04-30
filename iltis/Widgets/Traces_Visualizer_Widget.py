@@ -26,10 +26,11 @@ class Traces_Visualizer_Widget(pg.GraphicsLayoutWidget):
         self.plotWidget = pg.GraphicsLayoutWidget()
         self.plotItem = self.addPlot()
         self.plotItem.setLabel('left','F')
-        self.plotItem.setLabel('bottom','frame #')
         self.plotItem.showGrid(x=True,y=True,alpha=0.5)
-
         self.vline = self.plotItem.addLine(x=self.Data_Display.Frame_Visualizer.frame,movable=True)
+        # add info about where the line is
+        str_line_pos = str(self.Main.Data_Display.Frame_Visualizer.frame)
+        self.plotItem.setLabel('bottom','frame #; line at '+str_line_pos)
 
 
     def reset(self):
@@ -175,6 +176,10 @@ class Traces_Visualizer_Widget(pg.GraphicsLayoutWidget):
         self.Main.Data_Display.Frame_Visualizer.frame = pos
         self.Main.Data_Display.Frame_Visualizer.update_frame()
         self.update_vline(pos)
+# report position 
+        self.plotItem.setLabel('bottom','frame #; '+str(pos))
+
+
 
     def update_vline(self, pos):
         self.vline.setValue(pos) # this is for the keypress event
