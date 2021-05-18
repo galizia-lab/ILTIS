@@ -95,7 +95,11 @@ class ROIs_Object(QtCore.QObject):
 
         if kind == 'polygon':
             if pos_list == None:
-                pos_list = [[pos[0]-ROI_diameter,pos[1]-ROI_diameter], [pos[0]+ROI_diameter,pos[1]-ROI_diameter], [pos[0]+ROI_diameter,pos[1]+ROI_diameter], [pos[0]-ROI_diameter,pos[1]+ROI_diameter]]
+                pos_list = [
+                    [pos[0] - ROI_diameter, pos[1] - ROI_diameter],
+                    [pos[0] + ROI_diameter, pos[1] - ROI_diameter],
+                    [pos[0] + ROI_diameter, pos[1] + ROI_diameter],
+                    [pos[0] - ROI_diameter, pos[1] + ROI_diameter]]
             ROI = myPolyLineROI(pos_list, closed=True, **common_kwargs)
 
         if kind == 'polygon-multiclick':

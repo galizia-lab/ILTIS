@@ -290,25 +290,30 @@ class IO_Object(object):
                         pass
                     pass
 
-        if kind == '.coor': # old style compatibility
-            fh = open(file_path,'r')
-            for line in fh.readlines():
-                line = line.strip().split('\t')
-                kind = int(line[0])
-                label = line[1]
-                layer = int(line[2]) # deprecated
-                info = sp.array(line[3:],dtype=float)
-                if kind == 0:
-                    self.Main.ROIs.add_ROI(kind='circle',label=label,pos=(info[0],info[1]),ROI_diameter=info[2])
-                if kind == 1:
-                    pos_list = []
-                    for i in range(0,info.shape[0],2):
-                        pos = self.Main.Data_Display.Frame_Visualizer.ViewBox.mapToView(QtCore.QPointF(info[i],info[i+1]))
-                        pos_list.append([pos.x(),pos.y()])
-                        pass
-                    self.Main.ROIs.add_ROI(kind='polygon',label=label,pos_list=pos_list)
-                    pass
-                pass
+        elif kind == '.coor':  # old style compatibility
+            with open(file_path, 'r') as fh:
+                text_lines = fh.readlines()
+
+            n_rois = int(text_lines[0])
+            if len(text_lines) - 1 < n_rois:
+                QtWidgets.QMessageBox.critical(
+                    self.Main.MainWindow, "Coor file Error!",
+                    f"The number of ROIs ({n_rois}) indicated in the first line exceeds the number" \
+                    f"of ROI lines that follow in {file_path}"
+                )
+                return
+
+            for text_line in text_lines[1:]:
+                text_line = text_line.rstrip("\n")
+                text_parts = text_line.split("\t")
+                label = text_parts[2].lstrip("\t ")
+                x, y = (int(temp) for temp in text_parts[:2])
+                # pos_qpoint = self.Main.Data_Display.Frame_Visualizer.ViewBox.mapToView(QtCore.QPointF(x, y))
+                # pos = [pos_qpoint.x(), pos_qpoint.y()]
+                pos = [x, self.Main.Data.raw.shape[1] - y]
+                self.Main.ROIs.add_ROI(
+                    kind="polygon", label=label, pos=pos
+                )
 
     def write_extraction_mask(self):
         """ write both the .roi file and the tif pages

@@ -130,8 +130,8 @@ class MainWindow_Widget(QtWidgets.QMainWindow):
 
         self.ToolBar.addSeparator()
 
-        roi_type_widget = QtWidgets.QWidget()
-        hlayout = QtWidgets.QHBoxLayout(roi_type_widget)
+        self.roi_type_widget = QtWidgets.QWidget()
+        hlayout = QtWidgets.QHBoxLayout(self.roi_type_widget)
 
         hlayout.addWidget(QtWidgets.QLabel("ROI type"))
 
@@ -139,10 +139,10 @@ class MainWindow_Widget(QtWidgets.QMainWindow):
         choice_widget.currentIndexChanged.connect(self.Options_Control.option_changed_external)
 
         hlayout.addWidget(choice_widget)
-        roi_type_widget.setEnabled(False)
-        self.ToolBar.addWidget(roi_type_widget)
+        self.roi_type_widget.setEnabled(False)
+        self.ToolBar.addWidget(self.roi_type_widget)
 
-        self.toolbar_widgets.append(roi_type_widget)
+        self.toolbar_widgets.append(self.roi_type_widget)
 
         self.ToolBar.addSeparator()
 
