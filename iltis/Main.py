@@ -31,6 +31,8 @@ class Main(QtCore.QObject):
         self.program_dir = None
         self.graphics_path = None  # move to MainWindow
         self.tmp_path = None
+        self.data_path = None
+        self.roi_path = None
         self.Data = None
         self.verbose = verbose
 
@@ -54,6 +56,8 @@ class Main(QtCore.QObject):
         path to the graphics files, path to tmp """
 
         self.cwd = os.getcwd()
+        self.data_path = self.cwd
+        self.roi_path = self.cwd
         self.program_dir = os.path.split(os.path.realpath(__file__))[0] # of the dir where this code is executed from!
         self.graphics_path = self.program_dir + os.path.sep + 'graphics'
         if os.name == 'posix':

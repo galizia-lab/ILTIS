@@ -47,7 +47,9 @@ class ROIs_Object(QtCore.QObject):
             if evt.button() == 1:
                 # get correct position of mouse click
                 pos = self.Main.MainWindow.Data_Display.Frame_Visualizer.ViewBox.mapToView(evt.pos())
-                self.add_ROI(pos=sp.array([pos.x(),pos.y()]))
+                raw_shape = self.Main.Data.raw.shape
+                if (0 <= pos.x() <= raw_shape[0]) and (0 <= pos.y() <= raw_shape[1]):
+                    self.add_ROI(pos=sp.array([pos.x(), pos.y()]))
 
     def remove_ROI_request(self,evt):
         """ for ROI removal, clicked from popup menu """

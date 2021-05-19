@@ -169,8 +169,8 @@ class MainWindow_Widget(QtWidgets.QMainWindow):
                              'no_data_disabled':False},
 
                         'ReadROIAction':
-                            {'label':'Load .roi file',
-                             'status_tip':'Read .roi file from disk',
+                            {'label':'Load .roi (or .coor) file',
+                             'status_tip':'Read .roi (or .coor) file from disk',
                              'icon':None,
                              'func':self.Main.IO.load_ROIs,
                              'checkable':False,

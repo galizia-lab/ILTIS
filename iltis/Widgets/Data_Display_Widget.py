@@ -109,7 +109,10 @@ class Data_Display_Widget(QtWidgets.QMainWindow): # needs to be a QMainWindow to
 
     def set_tooltip(self, tooltip=None):
         if tooltip is None:
-            tooltip = "Click anywhere to create a ROI or\nclick inside an existing ROI to select it"
+            tooltip = \
+                "Click inside the frame to create a ROI or" \
+                "\nclick inside an existing ROI to select it." \
+                "\n(Nothing happens when you click outside the frame)"
 
         self.Frame_Visualizer.setToolTip(tooltip)
 

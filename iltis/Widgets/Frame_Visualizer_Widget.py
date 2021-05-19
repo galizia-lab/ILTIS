@@ -30,7 +30,7 @@ class Frame_Visualizer_Widget(pg.GraphicsView):
         # UI
         self.ViewBox = pg.ViewBox()
         self.ViewBox.setAspectLocked()
-        self.ViewBox.setAcceptDrops(True) # for drag and drop interaction? put it to the Data Selector!
+        self.ViewBox.setAcceptDrops(True)  # for drag and drop interaction? put it to the Data Selector!
         self.setCentralItem(self.ViewBox)
 
         pass
@@ -133,3 +133,4 @@ class Frame_Visualizer_Widget(pg.GraphicsView):
     def mouseMoved(self, evt):
         """ keep for debug """
         print("scene coordinates:", evt, "imageItem coordinates", self.ViewBox.mapToView(evt))
+
