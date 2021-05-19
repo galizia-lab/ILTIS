@@ -17,9 +17,11 @@ import pickle
 import re
 import time
 from collections import OrderedDict
+import pathlib as pl
 
 from skimage.measure import label as sklabel
 from skimage.measure import find_contours
+
 
 class IO_Object(object):
     """ holds all IO functionality """
@@ -112,6 +114,9 @@ class IO_Object(object):
         self.Main.Data = Data_Object()
         self.Main.Data.Metadata = Metadata_Object(self.Main.Data)
 
+        # init data path
+        self.Main.data_path = str(pl.Path(paths[-1]).parent)
+
         # determine format
         endings = sp.array([os.path.splitext(path)[1] for path in paths])
         if not(sp.all(endings[0] == endings)):
@@ -143,6 +148,8 @@ class IO_Object(object):
         # update cwd
         self.Main.cwd = os.path.dirname(paths[0])
         self.Main.Options.general['cwd'] = os.path.dirname(paths[0])
+        self.Main.data_path = os.path.dirname(paths[0])
+        self.Main.roi_path = os.path.dirname(paths[0])
 
         # infer some Meta information
         self.Main.Data.infer()
@@ -256,7 +263,9 @@ class IO_Object(object):
     def load_ROIs(self):
         """ reads a .roi or .coor file and updates the ROIs """
 
-        paths = self.OpenFileDialog(title='load ROIs',default_dir = self.Main.Options.general['cwd'], extension='*.roi *.coor')
+        paths = self.OpenFileDialog(
+            title='load ROIs', default_dir=self.Main.roi_path,
+            extension='*.roi *.coor')
 
         # do nothing if no paths were returned, i.e., when user pressed "Cancel"
         if not paths:
