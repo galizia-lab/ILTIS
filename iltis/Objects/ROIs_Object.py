@@ -4,6 +4,8 @@ Created on Wed Apr  1 13:21:29 2015
 
 @author: georg
 """
+import math
+
 from PyQt5 import QtCore, QtWidgets
 import pyqtgraph as pg
 import scipy as sp
@@ -97,11 +99,12 @@ class ROIs_Object(QtCore.QObject):
 
         if kind == 'polygon':
             if pos_list == None:
+                half_side = math.floor(ROI_diameter / 2)
                 pos_list = [
-                    [pos[0] - ROI_diameter, pos[1] - ROI_diameter],
-                    [pos[0] + ROI_diameter, pos[1] - ROI_diameter],
-                    [pos[0] + ROI_diameter, pos[1] + ROI_diameter],
-                    [pos[0] - ROI_diameter, pos[1] + ROI_diameter]]
+                    [pos[0] - half_side, pos[1] - half_side],
+                    [pos[0] + half_side, pos[1] - half_side],
+                    [pos[0] + half_side, pos[1] + half_side],
+                    [pos[0] - half_side, pos[1] + half_side]]
             ROI = myPolyLineROI(pos_list, closed=True, **common_kwargs)
 
         if kind == 'polygon-multiclick':
