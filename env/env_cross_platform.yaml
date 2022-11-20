@@ -5,7 +5,7 @@ dependencies:
   - pandas
   - pyqt
   - numpy
-  - python=3.7
+  - python>=3.7
   - scipy
   - qt
   - pyqtgraph

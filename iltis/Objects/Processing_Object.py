@@ -6,7 +6,8 @@ Created on Wed Apr 15 14:54:33 2015
 """
 import sys, os
 import scipy as sp
-from scipy import random, ndimage
+import numpy as np
+from scipy import ndimage
 from PyQt5.QtGui import QColor
 import pyqtgraph as pg
 
@@ -205,7 +206,7 @@ class Processing_Object(object):
         calculation
         """
         if samples:
-            data = data.flatten()[random.randint(sp.prod(data.shape),size=samples)]
+            data = data.flatten()[np.random.randint(sp.prod(data.shape),size=samples)]
         else:
             data = data.flatten()
         y,x = sp.histogram(data,bins=nbins)
@@ -237,12 +238,11 @@ class Processing_Object(object):
 
     def calc_segment_area(self,seg):
         """ calculates the area inside a segment (defined as [[x1,y1], ... ,[xn,yn]]) """
-        from scipy.linalg import norm
         centroid = sp.average(seg,axis=0)
         tri = []
         for i in range(1,seg.shape[0]):
-            g = norm(seg[i-1,:] - centroid)
-            h = norm(seg[i-1,:] - seg[i,:])
+            g = np.linalg.norm(seg[i-1,:] - centroid)
+            h = np.linalg.norm(seg[i-1,:] - seg[i,:])
             tri.append(g*h/2.0)
         area = sp.sum(sp.array(tri))
         return area
