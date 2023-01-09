@@ -220,7 +220,7 @@ class VectorWidget(QtWidgets.QTableWidget):
         self.horizontalHeader().hide()
 
         self.setFixedHeight(self.rowHeight(0) * self.rowCount())
-        self.horizontalHeader().setResizeMode(QtWidgets.QHeaderView.Stretch)
+        self.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
 
         for col_ind in range(self.columnCount()):
             self.setItem(0,col_ind,QtWidgets.QTableWidgetItem(''))
@@ -255,7 +255,7 @@ class ArrayWidget(QtWidgets.QTableWidget):
         self.horizontalHeader().hide()
 
         self.setFixedHeight(self.rowHeight(0) * self.rowCount())
-        self.horizontalHeader().setResizeMode(QtWidgets.QHeaderView.Stretch)
+        self.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
 
         for row_ind in range(self.rowCount()):
             for col_ind in range(self.columnCount()):
