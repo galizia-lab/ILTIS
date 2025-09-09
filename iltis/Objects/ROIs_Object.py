@@ -8,7 +8,7 @@ import math
 
 from PyQt5 import QtCore, QtWidgets
 import pyqtgraph as pg
-import scipy as sp
+import numpy as np
 
 
 class ROIs_Object(QtCore.QObject):
@@ -51,7 +51,7 @@ class ROIs_Object(QtCore.QObject):
                 pos = self.Main.MainWindow.Data_Display.Frame_Visualizer.ViewBox.mapToView(evt.pos())
                 raw_shape = self.Main.Data.raw.shape
                 if (0 <= pos.x() <= raw_shape[0]) and (0 <= pos.y() <= raw_shape[1]):
-                    self.add_ROI(pos=sp.array([pos.x(), pos.y()]))
+                    self.add_ROI(pos=np.array([pos.x(), pos.y()]))
 
     def remove_ROI_request(self,evt):
         """ for ROI removal, clicked from popup menu """
@@ -178,7 +178,7 @@ class ROIs_Object(QtCore.QObject):
     def get_active_ROIs(self):
         """ returns both boolean vector and indices """
         boolvec = [ROI.active for ROI in self.ROI_list]
-        inds = sp.where(boolvec)[0]
+        inds = np.where(boolvec)[0]
         return boolvec,inds
 
 
@@ -202,19 +202,19 @@ class ROIs_Object(QtCore.QObject):
         """ helper for slicing the pixels out of the image below a ROI
         calculates a boolean mask containing true if pixel inside ROI """
         if type(ROI) != myNonParametricROI:
-            mask = sp.zeros((self.Main.Data.raw.shape[0],self.Main.Data.raw.shape[1]),dtype='bool')
+            mask = np.zeros((self.Main.Data.raw.shape[0],self.Main.Data.raw.shape[1]),dtype='bool')
 
             # getArraySlice gets 1) array to slice 2) ImageItem
             inds = ROI.getArraySlice(self.Main.Data.raw[:,:,0,0], self.Main.MainWindow.Data_Display.Frame_Visualizer.ImageItems[0], returnSlice=False)[0]
 
-            val_inds = sp.where(ROI.getArrayRegion(self.Main.Data.raw[:,:,0,0], self.Main.MainWindow.Data_Display.Frame_Visualizer.ImageItems[0]) != 0)
-            inds = sp.array([inds[0],inds[1]])
+            val_inds = np.where(ROI.getArrayRegion(self.Main.Data.raw[:,:,0,0], self.Main.MainWindow.Data_Display.Frame_Visualizer.ImageItems[0]) != 0)
+            inds = np.array([inds[0],inds[1]])
 
-            true_inds = sp.array([val_inds[0] + inds[0,0],val_inds[1] + inds[1,0]])
+            true_inds = np.array([val_inds[0] + inds[0,0],val_inds[1] + inds[1,0]])
             mask[true_inds[0],true_inds[1]] = True
         else:
             mask = ROI.mask
-            true_inds = sp.where(mask)
+            true_inds = np.where(mask)
 
         return mask,true_inds
 
@@ -383,7 +383,7 @@ class myCircleROI(myROI, pg.CircleROI):
     def get_center(self):
         """ returns ROI center, used for label show """
         pos = self.pos()
-        pos = sp.array([pos.x(), pos.y()])
+        pos = np.array([pos.x(), pos.y()])
         pos = pos + self.size()[0] / 2.0 # here is is a plus. probably a ROI has it's coordinate 0,0 at the upper left corner, whereas the image 0,0 is bottom left
         return pos
 
@@ -420,10 +420,10 @@ class myPolyLineROI(myROI, pg.PolyLineROI):
         handle_pos = [tup[1] for tup in self.getSceneHandlePositions()]
         pos_mapped = [self.ViewBox.mapToView(pos) for pos in handle_pos]
         if first_call == True:
-            h_pos = sp.array([[p.x(),p.y()] for p in handle_pos])
+            h_pos = np.array([[p.x(),p.y()] for p in handle_pos])
         else:
-            h_pos = sp.array([[p.x(),p.y()] for p in pos_mapped])
-        pos = sp.average(h_pos,axis=0)
+            h_pos = np.array([[p.x(),p.y()] for p in pos_mapped])
+        pos = np.average(h_pos,axis=0)
         return pos
     pass
 
@@ -435,7 +435,7 @@ class myNonParametricROI(myROI, pg.ROI):
     def __init__(self,mask,contour,**kwargs):
 
         # pg.ROI needs a pos as the constructor. center of largest segment
-        pos = sp.average(contour[sp.argmax([cont.shape[0] for cont in contour])],axis=0)
+        pos = np.average(contour[np.argmax([cont.shape[0] for cont in contour])],axis=0)
         self.contour = contour
         self.mask = mask
 
@@ -502,7 +502,7 @@ class myNonParametricROI(myROI, pg.ROI):
 
     def get_center(self):
         """ pos is the centroid """
-        return sp.average(self.contour[sp.argmax([cont.shape[0] for cont in self.contour])],axis=0)
+        return np.average(self.contour[np.argmax([cont.shape[0] for cont in self.contour])],axis=0)
 
     def set_Pen(self,pen):
         for line in self.lines:

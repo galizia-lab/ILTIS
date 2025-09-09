@@ -5,7 +5,7 @@ Created on Mon Mar 31 15:35:08 2014
 @author: georg
 """
 
-import scipy as sp
+import numpy as np
 import tifffile
 import os
 import re
@@ -60,7 +60,7 @@ def read_tiff(path):
     dimensions to x y """
     data = tifffile.imread(path)
     data = data.T
-    data = sp.flip(data, axis=1)
+    data = np.flip(data, axis=1)
     return data
 
 
@@ -70,7 +70,7 @@ def read_tiffstack(path):
 
     data = tifffile.TiffFile(path).asarray()
     data = data.swapaxes(0,2) # moves t to last dim. tifffile reads pages as first dim
-    data = sp.flip(data, axis=1)
+    data = np.flip(data, axis=1)
     return data
 
 
@@ -80,7 +80,7 @@ def read_3dtiff(path):
     data = data.swapaxes(0,3)
     data = data[:,0,:,:]
     # not sure which dimension is Y, 1 or 2?
-    data = sp.flip(data, axis=2)
+    data = np.flip(data, axis=2)
     return data
 
 
@@ -92,14 +92,14 @@ def read_lsm(path,color=False):
     """
     data = tifffile.imread(path)
     Data_cut = data[0,0,:,:,:] # empirical ...
-    Data_cut_rot = sp.swapaxes(Data_cut,0,2)
+    Data_cut_rot = np.swapaxes(Data_cut,0,2)
 
     if color: # Thorough testing if xy order is preserved is missing!
         Data_cut = data[0,:,:,:]
-        Data_cut_rot = sp.swapaxes(Data_cut,2,0)
-        Data_cut_rot = sp.swapaxes(Data_cut_rot,1,3)
+        Data_cut_rot = np.swapaxes(Data_cut,2,0)
+        Data_cut_rot = np.swapaxes(Data_cut_rot,1,3)
 
-    Data_cut_rot = sp.flip(Data_cut_rot, 1)
+    Data_cut_rot = np.flip(Data_cut_rot, 1)
 
     return Data_cut_rot
 
@@ -122,7 +122,7 @@ def read_mhd(mhd_path):
         raw_path = os.path.join(os.path.dirname(mhd_path),os.path.basename(raw_path))
 
     # get dimensions
-    dimensions = sp.int16(re.findall('DimSize = (.+)',mhd)[0].split())
+    dimensions = np.int16(re.findall('DimSize = (.+)',mhd)[0].split())
 
     # get correct datatype mapping
     mhd_dtype = re.findall('ElementType = (.+)',mhd)[0]
@@ -130,14 +130,14 @@ def read_mhd(mhd_path):
 
     # read and reshape
     fh = open(raw_path, 'rb')
-    data = sp.frombuffer(fh.read(),dtype = dtype)
+    data = np.frombuffer(fh.read(),dtype = dtype)
 
     if len(dimensions) == 2:
-        data_reshape = sp.reshape(data,(dimensions[1],dimensions[0]))
+        data_reshape = np.reshape(data,(dimensions[1],dimensions[0]))
         data_reshape = data_reshape.T
     if len(dimensions) == 3: # FIXME
         sys.exit()
-        data_reshape = sp.reshape(data,(dimensions[2],dimensions[1],dimensions[0]))
+        data_reshape = np.reshape(data,(dimensions[2],dimensions[1],dimensions[0]))
 
     return data_reshape
 
@@ -161,12 +161,12 @@ def read_pst(pst_path):
             except:
                 pass
 
-    shape = sp.int32((meta['Width'],meta['Height'],meta['Frames']))
+    shape = np.int32((meta['Width'],meta['Height'],meta['Frames']))
 
 
-    raw = sp.fromfile(pst_path,dtype='int16')
-    data = sp.reshape(raw,shape,order='F')
-    data = sp.flip(data, axis=1)
+    raw = np.fromfile(pst_path,dtype='int16')
+    data = np.reshape(raw,shape,order='F')
+    data = np.flip(data, axis=1)
     return data.astype('uint16')
 
 
@@ -179,11 +179,11 @@ def save_tstack(data,path):
     """ saves an ndarray to a tiff file with the z axes in the pages. There is
     some confusion about the axes. read_lsm loads the correct x y z dims"""
 
-    # tifffile.imsave gets z y x
+    # tifffile.imwrite gets z y x
     datac = data.copy()
     datac = datac.swapaxes(0,2) #
-    datac = sp.flip(datac, axis=1)
-    tifffile.imsave(path,datac)
+    datac = np.flip(datac, axis=1)
+    tifffile.imwrite(path,datac)
     pass
 
 
@@ -191,7 +191,7 @@ def save_tiff(data,path):
     """ using the tifffile library to save a xy image array to a tiff, preserving
     correct xy order"""
 
-    tifffile.imsave(path,data.T)
+    tifffile.imwrite(path,data.T)
     pass
 
 
@@ -214,7 +214,7 @@ def save_mhd(data,path,dtype=None):
         data = data.astype(dtype)
 
     # left for possible future implementations
-    resolution = sp.ones(len(data.shape))
+    resolution = np.ones(len(data.shape))
 
     # path preparations
     mhd_path = path

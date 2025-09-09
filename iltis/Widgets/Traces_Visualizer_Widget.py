@@ -5,7 +5,6 @@ Created on Wed Apr 15 14:59:11 2015
 @author: georg
 """
 import pyqtgraph as pg
-import scipy as sp
 import numpy as np
 
 
@@ -48,8 +47,8 @@ class Traces_Visualizer_Widget(pg.GraphicsLayoutWidget):
         """ creates the traces, depending on the selected number of ROIs and
         datasets. """
         nActiveROIs = len(self.Main.Options.ROI['active_ROIs'])
-        nActiveTrials = sp.sum(self.Main.Options.view['show_flags'])
-        trial_inds = sp.where(self.Main.Options.view['show_flags'])[0]
+        nActiveTrials = np.sum(self.Main.Options.view['show_flags'])
+        trial_inds = np.where(self.Main.Options.view['show_flags'])[0]
 
         # delete all present if any
         if len(self.traces) > 0:
@@ -78,8 +77,8 @@ class Traces_Visualizer_Widget(pg.GraphicsLayoutWidget):
 
     def update_traces(self):
         """ update traces - for speed reasons via direct call"""
-        active_inds = sp.where(self.Main.Options.view['show_flags'])[0]
-        nActiveTrials = sp.sum(self.Main.Options.view['show_flags'])
+        active_inds = np.where(self.Main.Options.view['show_flags'])[0]
+        nActiveTrials = np.sum(self.Main.Options.view['show_flags'])
         nActiveROIs = len(self.Main.Options.ROI['active_ROIs'])
 
         # do not run if no ROIs
@@ -117,7 +116,7 @@ class Traces_Visualizer_Widget(pg.GraphicsLayoutWidget):
 
     def get_traces(self,ROI):
         """ helper for calculating the traces matrix """
-        active_inds = sp.where(self.Main.Options.view['show_flags'])[0]
+        active_inds = np.where(self.Main.Options.view['show_flags'])[0]
         # func bool mask slicing
         mask, inds = self.Main.ROIs.get_ROI_mask(ROI)  ### FIXME signal needed?
 
@@ -125,7 +124,7 @@ class Traces_Visualizer_Widget(pg.GraphicsLayoutWidget):
             sliced = self.Main.Data.dFF[mask, :, :][:, :, active_inds]
         else:
             sliced = self.Main.Data.raw[mask, :, :][:, :, active_inds]
-        Traces = sp.average(sliced, axis=0)
+        Traces = np.average(sliced, axis=0)
         return Traces
 
     def update_stim_regions(self):
@@ -191,7 +190,7 @@ class Traces_Visualizer_Widget(pg.GraphicsLayoutWidget):
             vline.blockSignals(False)
 
     def wheelEvent(self, evt):  # reimplementation
-        d = sp.around(evt.angleDelta().y() / 120.0)  # check this on different machines how much it is
+        d = np.around(evt.angleDelta().y() / 120.0)  # check this on different machines how much it is
         updated_frame = self.Main.Data_Display.Frame_Visualizer.frame - d
         if 0 <= updated_frame < self.Main.Data.nFrames:
             self.Main.Data_Display.Frame_Visualizer.frame -= d

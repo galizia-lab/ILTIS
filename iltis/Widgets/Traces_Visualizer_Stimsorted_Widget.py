@@ -6,7 +6,6 @@ Created on Wed Apr 15 15:00:08 2015
 """
 from PyQt5 import QtWidgets
 import pyqtgraph as pg
-import scipy as sp
 import numpy as np
 
 
@@ -44,7 +43,7 @@ class Traces_Visualizer_Stimsorted_Widget(QtWidgets.QWidget):
         # some preparations
         self.trial_labels = self.Main.Data.Metadata.trial_labels
         self.trial_indices = list(range(self.Main.Data.nTrials))
-        self.trial_labels_unique = sp.unique(self.trial_labels)
+        self.trial_labels_unique = np.unique(self.trial_labels)
         self.nStimClasses = len(self.trial_labels_unique)
         self.nRepetitions = self.trial_labels.count(self.trial_labels[0]) # FIXME: this imposes a fixed number of repetitions per trial. this should be changed into a vector holding values for each stim
 
@@ -86,7 +85,7 @@ class Traces_Visualizer_Stimsorted_Widget(QtWidgets.QWidget):
         for trial in self.trial_indices:
             # draw the trace in the correct panel
             stimClass = self.trial_labels[trial]
-            correct_panel_index = sp.where(self.trial_labels_unique == stimClass)[0][0]
+            correct_panel_index = np.where(self.trial_labels_unique == stimClass)[0][0]
             # with the correct pen
             pen = pg.mkPen(self.Main.Options.view['colors'][trial], width=2)
 
@@ -141,7 +140,7 @@ class Traces_Visualizer_Stimsorted_Widget(QtWidgets.QWidget):
 
     def get_traces(self, ROI):
         """ helper for calculating the traces matrix """
-        active_inds = sp.where(self.Main.Options.view['show_flags'])[0]
+        active_inds = np.where(self.Main.Options.view['show_flags'])[0]
         # func bool mask slicing
         mask, inds = self.Main.ROIs.get_ROI_mask(ROI)  ### FIXME signal needed?
 
@@ -149,7 +148,7 @@ class Traces_Visualizer_Stimsorted_Widget(QtWidgets.QWidget):
             sliced = self.Main.Data.dFF[mask,:,:][:,:,active_inds]
         else:
             sliced = self.Main.Data.raw[mask,:,:][:,:,active_inds]
-        Traces = sp.average(sliced,axis=0)
+        Traces = np.average(sliced,axis=0)
         return Traces
 
     def update_traces(self):
@@ -166,7 +165,7 @@ class Traces_Visualizer_Stimsorted_Widget(QtWidgets.QWidget):
 #                print "error with" , ROI_ind
 
             ROI = self.Main.Options.ROI['last_active']
-            active_inds = sp.where(self.Main.Options.view['show_flags'])[0]
+            active_inds = np.where(self.Main.Options.view['show_flags'])[0]
             Traces = self.get_traces(ROI)
 
             for n, ind in enumerate(active_inds):
@@ -206,7 +205,7 @@ class Traces_Visualizer_Stimsorted_Widget(QtWidgets.QWidget):
         self.Main.Data_Display.Traces_Visualizer.vline.setValue(pos)
 
     def wheelEvent(self, evt): # reimplementation
-        d = sp.around(evt.angleDelta().y() / 120.0)  # check this on different machines how much it is
+        d = np.around(evt.angleDelta().y() / 120.0)  # check this on different machines how much it is
         updated_frame = self.Main.Data_Display.Frame_Visualizer.frame - d
         if 0 <= updated_frame < self.Main.Data.nFrames:
             self.Main.Data_Display.Frame_Visualizer.frame -= d

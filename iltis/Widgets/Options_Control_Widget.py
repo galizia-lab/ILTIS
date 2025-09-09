@@ -5,7 +5,7 @@ Created on Wed Apr  1 13:23:18 2015
 @author: georg
 """
 from PyQt5 import QtCore, QtWidgets
-import scipy as sp
+import numpy as np
 
 
 class Options_Control_Widget(QtWidgets.QTabWidget):
@@ -194,10 +194,10 @@ class SingleValueWidget(QtWidgets.QLineEdit):
         if self.dtype == 'S':
             return str(self.text())
         else:
-            return sp.array(str(self.text())).astype(self.dtype)
+            return np.array(str(self.text())).astype(self.dtype)
 
     def set_value(self,value):
-        value = sp.array(value)
+        value = np.array(value)
         # FIXME take care of this mess - python 3 unicode strings
         # print(value.dtype.kind)
         # print(self.dtype)
@@ -229,14 +229,14 @@ class VectorWidget(QtWidgets.QTableWidget):
         self.cellChanged.connect(self.parent.UI_changed)
 
     def get_value(self):
-        value = sp.zeros(self.columnCount(),dtype=self.dtype)
+        value = np.zeros(self.columnCount(),dtype=self.dtype)
         for col_ind in range(self.columnCount()):
-            value[col_ind] = sp.array(str(self.item(0,col_ind).text())).astype(self.dtype)
+            value[col_ind] = np.array(str(self.item(0,col_ind).text())).astype(self.dtype)
 
         return value
 
     def set_value(self,value):
-        value = sp.array(value)
+        value = np.array(value)
         if value.dtype.kind != self.dtype:
             raise ValueError('trying to set a Options_Control UI field with the wrong datatype!')
         for col_ind in range(self.columnCount()):
@@ -265,14 +265,14 @@ class ArrayWidget(QtWidgets.QTableWidget):
         self.cellChanged.connect(self.parent.UI_changed)
 
     def get_value(self):
-        value = sp.zeros((self.rowCount(),self.columnCount()),dtype=self.dtype)
+        value = np.zeros((self.rowCount(),self.columnCount()),dtype=self.dtype)
         for row_ind in range(self.rowCount()):
             for col_ind in range(self.columnCount()):
-                value[row_ind,col_ind] = sp.array(str(self.item(row_ind,col_ind).text())).astype(self.dtype)
+                value[row_ind,col_ind] = np.array(str(self.item(row_ind,col_ind).text())).astype(self.dtype)
         return value
 
     def set_value(self,value):
-        value = sp.array(value)
+        value = np.array(value)
         if value.dtype.kind != self.dtype:
             raise ValueError('trying to set a Options_Control UI field with the wrong datatype!')
         for row_ind in range(self.rowCount()):

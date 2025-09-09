@@ -12,7 +12,7 @@ io is designed useable by ILTIS interface as well as programmatically
 """
 
 
-import scipy as sp
+import numpy as np
 import pandas as pd
 import os
 import re
@@ -47,10 +47,10 @@ def read_gloDatamix(path,nTags=None,tagList=None):
     if tagList == None:
         if nTags == None:
             # infer nTags
-            nTags = sp.sum([field[:4] != 'data' for field in lines[0].strip().split('\t')]) # this breaks with Ana style gloDatamix
+            nTags = np.sum([field[:4] != 'data' for field in lines[0].strip().split('\t')]) # this breaks with Ana style gloDatamix
     
     # read data into np.array and medadata into pd.DataFrame
-    Data = sp.zeros((len(lines)-1,len(lines[0].split('\t')) - nTags))
+    Data = np.zeros((len(lines)-1,len(lines[0].split('\t')) - nTags))
     
     for i,line in enumerate(lines):
         if i == 0:
@@ -59,7 +59,7 @@ def read_gloDatamix(path,nTags=None,tagList=None):
         else:
             meta = line.split('\t')[:nTags]
             Meta.iloc[i-1] = meta
-            Data[i-1,:] = sp.array(line.split('\t')[nTags:],dtype='float32')
+            Data[i-1,:] = np.array(line.split('\t')[nTags:],dtype='float32')
         
     return Meta, Data
 
@@ -152,11 +152,11 @@ def log2lst(fname):
         is some kind of bug, leaving a 1s approx offst """
         try:
             times = Measurement['timing [ms]'].strip()
-            times = sp.array(times.split(' '),dtype='int32')
+            times = np.array(times.split(' '),dtype='int32')
             times_hhmmss = [time.strftime('%H:%M:%S',time.gmtime((t+last_time)/1000.0)) for t in times]
             last_time = times[-1] + last_time
             mtime = times_hhmmss[len(times)/2]
-            dt = str(sp.diff(times)[0])
+            dt = str(np.diff(times)[0])
         except:
             mtime = '-1'
             dt = '-1'

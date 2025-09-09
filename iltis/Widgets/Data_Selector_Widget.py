@@ -5,7 +5,7 @@ Created on Wed Apr 15 14:57:18 2015
 @author: georg
 """
 from PyQt5 import QtWidgets, QtGui
-import scipy as sp
+import numpy as np
 
 
 class Data_Selector_Widget(QtWidgets.QTableWidget):
@@ -87,7 +87,7 @@ class Data_Selector_Widget(QtWidgets.QTableWidget):
         selection = [item.row() for item in self.selectedItems()]
         if len(selection) > 0:
             last_selected = selection[-1] # FIXME this sometimes throws errors
-            show_flags_updated = sp.zeros(len(self.Main.Data.Metadata.paths),dtype='bool')
+            show_flags_updated = np.zeros(len(self.Main.Data.Metadata.paths),dtype='bool')
             show_flags_updated[selection] = 1
             self.Main.Options.view['show_flags'] = show_flags_updated
             self.Main.Options.view['last_selected'] = last_selected
