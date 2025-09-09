@@ -5,7 +5,6 @@ Created on Wed Apr 15 14:54:33 2015
 @author: georg
 """
 import sys, os
-import scipy as sp
 import numpy as np
 from scipy import ndimage
 from PyQt5.QtGui import QColor
@@ -20,7 +19,7 @@ class Processing_Object(object):
 
     def calc_gaussian_smooth(self):
         """ apply gaussian """
-        xy,z = sp.float32(self.Main.Options.preprocessing['filter_size'])
+        xy,z = np.float32(self.Main.Options.preprocessing['filter_size'])
         filter_size = (xy,xy,z)
 
         for n in range(self.Main.Data.nTrials):
@@ -61,18 +60,18 @@ class Processing_Object(object):
 
         f_start,f_stop = self.Main.Options.preprocessing['dFF_frames']
 
-        if sp.any(self.Main.Data.raw == 0): # add offset if 0 intensity pixels exist
+        if np.any(self.Main.Data.raw == 0): # add offset if 0 intensity pixels exist
             data_tmp = self.Main.Data.raw + 100
         else:
             data_tmp = self.Main.Data.raw
 
-        bck = sp.average(data_tmp[:,:,f_start:f_stop,:],axis=2)[:,:,sp.newaxis,:]
+        bck = np.average(data_tmp[:,:,f_start:f_stop,:],axis=2)[:,:,np.newaxis,:]
         self.Main.Data.dFF = (data_tmp - bck) / bck
         self.Main.Options.flags['dFF_was_calc'] = True
 
     def calc_avg(self):
         f_start,f_stop = self.Main.Options.preprocessing['avg_frames']
-        sp.average(self.Main.Data.raw[:,:,f_start:f_stop,:],axis=2)
+        np.average(self.Main.Data.raw[:,:,f_start:f_stop,:],axis=2)
 
 #==============================================================================
     ### dataset extraction related
@@ -89,7 +88,7 @@ class Processing_Object(object):
             t0 = self.Main.Options.preprocessing['stimuli'][0,0] * dt
 
         # calc
-        tvec = sp.arange(0,nFrames*dt,dt)
+        tvec = np.arange(0,nFrames*dt,dt)
         tvec = tvec - t0
 
         # store
@@ -103,7 +102,7 @@ class Processing_Object(object):
         extraction mask as the shape of (x,y,nROIs), True if pixel is inside
         ROI """
 
-        extraction_mask = sp.zeros((self.Main.Data.raw.shape[0],self.Main.Data.raw.shape[1],len(self.Main.ROIs.ROI_list)),dtype='bool')
+        extraction_mask = np.zeros((self.Main.Data.raw.shape[0],self.Main.Data.raw.shape[1],len(self.Main.ROIs.ROI_list)),dtype='bool')
 
         for i,ROI in enumerate(self.Main.ROIs.ROI_list):
             mask, inds = self.Main.ROIs.get_ROI_mask(ROI)
@@ -119,7 +118,7 @@ class Processing_Object(object):
         if extraction_mask is None:
             extraction_mask = self.Main.Data.extraction_mask
 
-        self.Main.Data.Traces = sp.zeros((self.Main.Data.nFrames,extraction_mask.shape[2],self.Main.Data.nTrials))
+        self.Main.Data.Traces = np.zeros((self.Main.Data.nFrames,extraction_mask.shape[2],self.Main.Data.nTrials))
 
         for stim_id in range(self.Main.Data.nTrials): # iterate over trials
             for ROI_id in range(extraction_mask.shape[2]): # iterate over ROIs
@@ -128,16 +127,16 @@ class Processing_Object(object):
                 if self.Main.Options.export['data'] == 'dFF':
                     sliced = self.Main.Data.dFF[extraction_mask[:,:,ROI_id],:,stim_id]
 
-                self.Main.Data.Traces[:,ROI_id,stim_id] = sp.average(sliced,axis=0)
+                self.Main.Data.Traces[:,ROI_id,stim_id] = np.average(sliced,axis=0)
 
 
     def sort_traces(self):
         """ creates a (t,ID,stim,rep) np.array of the Traces """
 
-        labels = sp.array(self.Main.Data.Metadata.trial_labels)
+        labels = np.array(self.Main.Data.Metadata.trial_labels)
 
         # inferrence
-        stim_unique = sp.unique(labels)
+        stim_unique = np.unique(labels)
         nStims = stim_unique.shape[0]
         nReps = len(labels) / nStims
 
@@ -145,12 +144,12 @@ class Processing_Object(object):
         nROIs = len(self.Main.ROIs.ROI_list)
 
         # dims are t, cell, odor, rep
-        self.Main.Data.Traces_sorted = sp.zeros((nFrames,nROIs,nStims,nReps))
+        self.Main.Data.Traces_sorted = np.zeros((nFrames,nROIs,nStims,nReps))
 
         for n in range(self.Main.Data.nTrials):
             # get the correct indices
-            stim_index = sp.where(stim_unique == labels[n])[0][0] # this finds the index in stim_unique of the corresponding stim of the trial
-            rep_index = sp.where(sp.where(labels == labels[n])[0] == n)[0][0] # das wievielte mal kommt n in stim_order[n] vor? -> rep index
+            stim_index = np.where(stim_unique == labels[n])[0][0] # this finds the index in stim_unique of the corresponding stim of the trial
+            rep_index = np.where(np.where(labels == labels[n])[0] == n)[0][0] # das wievielte mal kommt n in stim_order[n] vor? -> rep index
 
             # get the traces and put it in the data structure at the correct place
             try:
@@ -169,7 +168,7 @@ class Processing_Object(object):
         return colors, color_maps
 
     def calc_colors(self,nColors,HSVsubset=(0,360),HSVoffset=0):
-        h = sp.linspace(HSVsubset[0],HSVsubset[1],nColors,endpoint=False).astype('int')
+        h = np.linspace(HSVsubset[0],HSVsubset[1],nColors,endpoint=False).astype('int')
         h = self.add_circular_offset(h,HSVoffset,HSVsubset[1]).tolist()
         s = [255] * nColors
         v = [255] * nColors
@@ -182,18 +181,18 @@ class Processing_Object(object):
 
     def calc_colormap(self,rgba):
         """ input is a rgb(a) tuple returns PGColorMap """
-        pos = sp.array([1,0])
-        cols = sp.array([rgba,[0,0,0,0]],dtype=sp.ubyte)
+        pos = np.array([1,0])
+        cols = np.array([rgba,[0,0,0,0]],dtype=np.ubyte)
         cmap = pg.ColorMap(pos,cols)
         return cmap
 
     def calc_preset_colormaps(self):
-        pos = sp.array([1,0.66,0.33,0])
-        cols = sp.array([[255,255,255,255],[255,220,0,255],[185,0,0,255],[0,0,0,0]],dtype=sp.ubyte)
+        pos = np.array([1,0.66,0.33,0])
+        cols = np.array([[255,255,255,255],[255,220,0,255],[185,0,0,255],[0,0,0,0]],dtype=np.ubyte)
         heatmap = pg.ColorMap(pos,cols)
 
-        pos = sp.array([1,0])
-        cols = sp.array([[255,255,255,255],[0,0,0,255]],dtype=sp.ubyte)
+        pos = np.array([1,0])
+        cols = np.array([[255,255,255,255],[0,0,0,255]],dtype=np.ubyte)
         graymap = pg.ColorMap(pos,cols)
 
         return heatmap, graymap
@@ -206,20 +205,20 @@ class Processing_Object(object):
         calculation
         """
         if samples:
-            data = data.flatten()[np.random.randint(sp.prod(data.shape),size=samples)]
+            data = data.flatten()[np.random.randint(np.prod(data.shape),size=samples)]
         else:
             data = data.flatten()
-        y,x = sp.histogram(data,bins=nbins)
-        cy = sp.cumsum(y).astype('float32')
+        y,x = np.histogram(data,bins=nbins)
+        cy = np.cumsum(y).astype('float32')
         cy = cy / cy.max()
-        minInd = sp.argmin(sp.absolute(cy - fraction[0]))
-        maxInd = sp.argmin(sp.absolute(cy - fraction[1]))
+        minInd = np.argmin(np.absolute(cy - fraction[0]))
+        maxInd = np.argmin(np.absolute(cy - fraction[1]))
         levels = (x[minInd],x[maxInd])
         return levels
 
     def add_circular_offset(self,array,offset,bound):
         """ helper function to rotate the color wheel"""
-        rotated = sp.array([val % bound if val > bound else val for val in (array + offset)])
+        rotated = np.array([val % bound if val > bound else val for val in (array + offset)])
         return rotated
     pass
 
@@ -230,7 +229,7 @@ class Processing_Object(object):
     def find_contour(self,mask,level=0.5):
         """ returns a list of segments """
         import matplotlib._cntr as cntr
-        X,Y = sp.meshgrid(sp.arange(mask.shape[0]),sp.arange(mask.shape[1]))
+        X,Y = np.meshgrid(np.arange(mask.shape[0]),np.arange(mask.shape[1]))
         c = cntr.Cntr(X, Y, mask.T)
         nlist = c.trace(level, level, 0)
         segs = nlist[:len(nlist)//2]
@@ -238,13 +237,13 @@ class Processing_Object(object):
 
     def calc_segment_area(self,seg):
         """ calculates the area inside a segment (defined as [[x1,y1], ... ,[xn,yn]]) """
-        centroid = sp.average(seg,axis=0)
+        centroid = np.average(seg,axis=0)
         tri = []
         for i in range(1,seg.shape[0]):
             g = np.linalg.norm(seg[i-1,:] - centroid)
             h = np.linalg.norm(seg[i-1,:] - seg[i,:])
             tri.append(g*h/2.0)
-        area = sp.sum(sp.array(tri))
+        area = np.sum(np.array(tri))
         return area
 
 #    def find_submasks(self,mask,level=0.5):

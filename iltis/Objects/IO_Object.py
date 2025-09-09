@@ -11,13 +11,13 @@ from ..io import IOtools as io
 from ..io import gioIO as gio
 from .Data_Object import Data_Object, Metadata_Object
 from .ROIs_Object import myCircleROI, myPolyLineROI
-import scipy as sp
 import pandas as pd
 import pickle
 import re
 import time
 from collections import OrderedDict
 import pathlib as pl
+import numpy as np
 
 from skimage.measure import label as sklabel
 from skimage.measure import find_contours
@@ -118,8 +118,8 @@ class IO_Object(object):
         self.Main.data_path = str(pl.Path(paths[-1]).parent)
 
         # determine format
-        endings = sp.array([os.path.splitext(path)[1] for path in paths])
-        if not(sp.all(endings[0] == endings)):
+        endings = np.array([os.path.splitext(path)[1] for path in paths])
+        if not(np.all(endings[0] == endings)):
             print(f"The extensions of the selected list of files are not same:\n{paths}")
             sys.exit()
         file_format = endings[0]
@@ -170,8 +170,8 @@ class IO_Object(object):
         x, y, t = io.read_tiffstack(paths[0]).shape
         n = len(paths)
 
-        self.Main.Data.raw = sp.zeros((x, y, t, n), dtype='int16')
-        self.Main.Data.dFF = sp.zeros((x, y, t, n), dtype='float32')
+        self.Main.Data.raw = np.zeros((x, y, t, n), dtype='int16')
+        self.Main.Data.dFF = np.zeros((x, y, t, n), dtype='float32')
 
         for n, path in enumerate(paths):
             print("loading dataset from " + path)
@@ -285,7 +285,7 @@ class IO_Object(object):
                     kind = line[0]
                     label = line[1]
 
-                    info = sp.array(line[2:],dtype=float)
+                    info = np.array(line[2:],dtype=float)
                     if kind == 'circle':
                         self.Main.ROIs.add_ROI(kind='circle',label=label,pos=(info[0],info[1]),ROI_diameter=info[2])
 
@@ -343,11 +343,11 @@ class IO_Object(object):
             label = str(ROI.label)
 
             if type(ROI) == myCircleROI:
-#                pos = sp.array([ROI.pos().x(),ROI.pos().y()])
+#                pos = np.array([ROI.pos().x(),ROI.pos().y()])
 #                pos = self.get_ROI_position(ROI)
-                x = str(sp.around(ROI.center[0],decimals=2))
-                y = str(sp.around(ROI.center[1],decimals=2))
-                d = str(sp.around(ROI.diameter,decimals=2))
+                x = str(np.around(ROI.center[0],decimals=2))
+                y = str(np.around(ROI.center[1],decimals=2))
+                d = str(np.around(ROI.diameter,decimals=2))
 
                 fh.write('\t'.join(['circle',label,x,y,d,'\n']))
 
@@ -363,7 +363,7 @@ class IO_Object(object):
                      x = pos.x()
                      y = pos.y()
 
-                     fh.write('\t'.join([str(sp.around(x,decimals=2)),str(sp.around(y,decimals=2))]))
+                     fh.write('\t'.join([str(np.around(x,decimals=2)),str(np.around(y,decimals=2))]))
                      fh.write('\t')
                  fh.write('\n')
 
@@ -399,13 +399,13 @@ class IO_Object(object):
 
         # skimage based segmentation
         masks_thresh = masks > thresh
-        masks_label = sp.zeros(masks_thresh.shape)
+        masks_label = np.zeros(masks_thresh.shape)
         for i in range(masks_thresh.shape[2]):
             masks_label[:,:,i] = sklabel(masks_thresh[:,:,i])
 
         # split into a array of submasks
         Nsubmasks = [int(masks_label[:,:,i].max()) for i in range(masks_label.shape[2])]
-        submasks = sp.zeros((masks.shape[0],masks.shape[1],sum(Nsubmasks)),dtype='bool')
+        submasks = np.zeros((masks.shape[0],masks.shape[1],sum(Nsubmasks)),dtype='bool')
 
         i = 0
         for j in range(masks_label.shape[2]):
@@ -507,7 +507,7 @@ class IO_Object(object):
 
             for n in range(self.Main.Data.nTrials):
                 outpath = os.path.splitext(self.Main.Data.Metadata.paths[n])[0] + '_traces_' + str(n+1) + '.csv'
-                data = sp.concatenate((tvec[:,sp.newaxis],self.Main.Data.Traces[:,:,n]),axis=1)
+                data = np.concatenate((tvec[:,np.newaxis],self.Main.Data.Traces[:,:,n]),axis=1)
                 pd.DataFrame(data,columns=labels).to_csv(outpath,sep=',')
 
                 if self.Main.verbose:
@@ -524,7 +524,7 @@ class IO_Object(object):
 
             # prepare
             ROI_labels = [ROI.label for ROI in self.Main.ROIs.ROI_list]
-            unique_trial_labels = sp.unique(self.Main.Data.Metadata.trial_labels)
+            unique_trial_labels = np.unique(self.Main.Data.Metadata.trial_labels)
             nStims = unique_trial_labels.shape[0]
             nReps = len(self.Main.Data.Metadata.trial_labels) / nStims
 
@@ -533,7 +533,7 @@ class IO_Object(object):
             for ROI_id,ROI_label in enumerate(ROI_labels):
                 for trial_ind,trial_label in enumerate(unique_trial_labels):
                     data = self.Main.Data.Traces_sorted[:,ROI_id,trial_ind,:]
-                    data = sp.concatenate((tvec[:,sp.newaxis],data),axis=1)
+                    data = np.concatenate((tvec[:,np.newaxis],data),axis=1)
                     cols = ['time [s]'] + [str(ind+1) for ind in range(nReps)]
                     outpath = self.Main.Options.general['cwd'] + os.path.sep + self.Main.Options.general['experiment_name'] + '_' + trial_label + '_' + ROI_label + '.csv'
                     pd.DataFrame(data,columns=cols).to_csv(outpath,sep=',')
@@ -606,7 +606,7 @@ class IO_Object(object):
                 row['NStim_ON'] = str(self.Main.Options.preprocessing['stimuli'][0,0])
                 row['NStim_Off'] = str(self.Main.Options.preprocessing['stimuli'][0,1])
                 row['NNoFrames'] = str(self.Main.Data.nFrames)
-                row['NFrameTime'] = str(sp.int32(self.Main.Options.preprocessing['dt'] * 1000))
+                row['NFrameTime'] = str(np.int32(self.Main.Options.preprocessing['dt'] * 1000))
                 row['NRealTime'] = str(lst_values['MTime'])
                 row['NPhConc'] = str(lst_values['PhConc'])
                 row['NshiftX'] = str(lst_values['ShiftX'])
@@ -619,7 +619,7 @@ class IO_Object(object):
                 row['Nstim2OFF'] = str(stim2off)
                 row['NAge'] = str(NAge)
                 row['NAgeMax'] = str(NAgeMax)
-                row['TGloInfo'] = 'Coor' + str(int(sp.around(pos[0],decimals=0))) + ':' + str(int(sp.around(pos[1],decimals=0)))
+                row['TGloInfo'] = 'Coor' + str(int(np.around(pos[0],decimals=0))) + ':' + str(int(np.around(pos[1],decimals=0)))
                 row['TOdour'] = str(lst_values['Odour'])
                 row['T_dbb1'] = str(lst_values['DBB1'])
                 row['Tcomment'] = str(lst_values['Comment'])
@@ -747,7 +747,7 @@ class IO_Object(object):
         # since OpenFileDialog can allow selection of multiple files, select the first one
         filepath = paths[0]
 
-        # check which whay to parse
+        # check which way to parse
         with open(filepath,'r') as fh:
             firstline = fh.readline()
 
@@ -769,7 +769,7 @@ class IO_Object(object):
         """ reads the labels from the text file at path (newline separated) """
 
         if mode == 'single':
-            """ the labels are strings seperated by newlines """
+            """ the labels are strings separated by newlines """
             with open(filepath, 'r') as fh:
                 labels = [label.strip() for label in fh.readlines()]
 
@@ -857,7 +857,7 @@ class IO_Object(object):
         .gloDatamix style (ROI/trial,t) where iteration is first over ROI and then
         over trial """
 
-        Traces_conv = sp.zeros((len(self.Main.ROIs.ROI_list) * self.Main.Data.nTrials , self.Main.Data.nFrames))
+        Traces_conv = np.zeros((len(self.Main.ROIs.ROI_list) * self.Main.Data.nTrials , self.Main.Data.nFrames))
 
         k = 0
         for n in range(self.Main.Data.nTrials):

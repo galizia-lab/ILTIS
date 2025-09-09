@@ -9,7 +9,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from .Data_Display_Widget import Data_Display_Widget
 from .Front_Control_Panel_Widget import Front_Control_Panel_Widget
 from .Options_Control_Widget import Options_Control_Widget, StringChoiceWidget
-import scipy as sp
+import numpy as np
 
 
 class MainWindow_Widget(QtWidgets.QMainWindow):
@@ -400,12 +400,12 @@ class MainWindow_Widget(QtWidgets.QMainWindow):
         if event.key() == 16777234:
 #            print " left arrow "
             self.Data_Display.Frame_Visualizer.frame = self.Data_Display.Frame_Visualizer.frame - 1
-            self.Data_Display.Frame_Visualizer.frame = sp.clip(self.Data_Display.Frame_Visualizer.frame,0,self.Main.Data.nFrames-1)
+            self.Data_Display.Frame_Visualizer.frame = np.clip(self.Data_Display.Frame_Visualizer.frame,0,self.Main.Data.nFrames-1)
 
         if event.key() == 16777236:
 #            print " right arrow "
             self.Data_Display.Frame_Visualizer.frame = self.Data_Display.Frame_Visualizer.frame + 1
-            self.Data_Display.Frame_Visualizer.frame = sp.clip(self.Data_Display.Frame_Visualizer.frame,0,self.Main.Data.nFrames-1)
+            self.Data_Display.Frame_Visualizer.frame = np.clip(self.Data_Display.Frame_Visualizer.frame,0,self.Main.Data.nFrames-1)
 
         # self.Data_Display.Frame_Visualizer.update_frame()
         self.Data_Display.Traces_Visualizer.update_vline(self.Data_Display.Frame_Visualizer.frame) # one call is enougth because this one calls the other as well

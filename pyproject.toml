@@ -1,0 +1,28 @@
+# pyproject.toml
+[build-system]
+requires = ["setuptools>=80", "setuptools-scm[simple]>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = 'iltis'
+dynamic = ["version"]
+description = 'ILTIS - an interactive labeled-trial image stack slicer'
+requires-python = ">=3.7"
+dependencies = [
+                   'scipy',
+                   'pyqtgraph',
+                   'pandas',
+                   'matplotlib',
+                   'tifffile',
+                   'scikit-image',
+                   'PyQt5>=5.12.2,<6'
+]
+readme = "README.md"
+license = "GPL-2.0"
+
+[project.gui-scripts]
+iltis = 'iltis.Main:main'
+
+
+[tool.setuptools.package-data]
+iltis = ["graphics/icons/*.svg", "graphics/*.jpg"]

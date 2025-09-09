@@ -6,7 +6,7 @@ Created on Wed Apr  1 13:23:18 2015
 """
 import sys, os
 from PyQt5 import QtCore
-import scipy as sp
+import numpy as np
 
 
 class Options_Object(QtCore.QObject):
@@ -80,7 +80,7 @@ class Options_Object(QtCore.QObject):
                         'cwd':self.Main.cwd,
                         }
 
-        self.preprocessing = {'stimuli':sp.array([[20.0, 22.0]]),
+        self.preprocessing = {'stimuli':np.array([[20.0, 22.0]]),
                               'nStimuli':1,
                               'dFF_frames':[10,40],
                               'avg_frames':[0,self.Main.Data.nFrames-1],
@@ -91,7 +91,7 @@ class Options_Object(QtCore.QObject):
                               'dt':0.24
                               }
 
-        self.view = {'show_flags':sp.ones(self.Main.Data.nTrials,dtype='bool'),
+        self.view = {'show_flags':np.ones(self.Main.Data.nTrials,dtype='bool'),
                      'composition_mode':'Plus',
                      'last_selected':0,
                      'show_dFF':False,

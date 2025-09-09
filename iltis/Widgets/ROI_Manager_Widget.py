@@ -5,7 +5,7 @@ Created on Wed Apr 15 14:58:09 2015
 @author: georg
 """
 from PyQt5 import QtWidgets
-import scipy as sp
+import numpy as np
 
 
 class ROI_Manager_Widget(QtWidgets.QTableWidget):
@@ -50,7 +50,7 @@ class ROI_Manager_Widget(QtWidgets.QTableWidget):
     def get_current_selection(self):
         """ returns the current selection as a boolean vector """
         selected = [item.row() for item in self.selectedItems()]
-        boolvec = sp.zeros(self.rowCount(),dtype='bool')
+        boolvec = np.zeros(self.rowCount(),dtype='bool')
         boolvec[selected] = True
         return boolvec
 
