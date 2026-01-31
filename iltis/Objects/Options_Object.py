@@ -5,7 +5,7 @@ Created on Wed Apr  1 13:23:18 2015
 @author: georg
 """
 import sys, os
-from PyQt5 import QtCore
+from qtpy import QtCore
 import numpy as np
 
 

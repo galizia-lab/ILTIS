@@ -5,7 +5,8 @@ Created on Wed Apr 15 14:52:50 2015
 @author: georg
 """
 import sys, os
-from PyQt5 import QtCore, QtWidgets # for the dialogs
+from qtpy import QtCore, QtWidgets # for the dialogs
+from qtpy.compat import getopenfilenames, getsavefilename
 import pyqtgraph as pg
 from ..io import IOtools as io
 from ..io import gioIO as gio
@@ -71,9 +72,11 @@ class IO_Object(object):
         if title is None:
             title ='Open File'
 
-        qpaths, file_filters = QtWidgets.QFileDialog.getOpenFileNames(parent=self.Main.MainWindow,
-                                                                      caption=title,
-                                                                      directory=default_dir, filter=extension)
+        qpaths, file_filters = getopenfilenames(
+            parent=self.Main.MainWindow,
+            caption=title,
+            basedir=default_dir,
+            filters=extension)
         paths = []
         for i in range(len(qpaths)):
             paths.append(str(qpaths[i]))
@@ -87,9 +90,11 @@ class IO_Object(object):
         if title is None:
             title = 'Save File'
 
-        qpath, file_filters = QtWidgets.QFileDialog.getSaveFileName(parent=self.Main.MainWindow,
-                                                                    caption=title,
-                                                                    directory=default_dir, filter=extension)
+        qpath, file_filters = getsavefilename(
+            parent=self.Main.MainWindow,
+            caption=title,
+            basedir=default_dir,
+            filters=extension)
         path = str(qpath)
 
         return path

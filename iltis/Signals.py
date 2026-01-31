@@ -5,24 +5,24 @@ Created on Tue Apr 14 16:30:14 2015
 @author: georg
 """
 
-from PyQt5 import QtCore
+from qtpy import QtCore
 
 
 class Signals(QtCore.QObject):
  
     # global signals
-    updateSignal = QtCore.pyqtSignal()
-    updateTracesSignal = QtCore.pyqtSignal()  # this not used because of speed reasons
-    updateFrameSignal = QtCore.pyqtSignal()  # this is not used because of speed reasons
-    LUTchangedSignal = QtCore.pyqtSignal()  # this is not used because of speed reasons
-    activeROIsChangedSignal = QtCore.pyqtSignal()
+    updateSignal = QtCore.Signal()
+    updateTracesSignal = QtCore.Signal()  # this not used because of speed reasons
+    updateFrameSignal = QtCore.Signal()  # this is not used because of speed reasons
+    LUTchangedSignal = QtCore.Signal()  # this is not used because of speed reasons
+    activeROIsChangedSignal = QtCore.Signal()
     
-    updateDisplaySettingsSignal = QtCore.pyqtSignal()
+    updateDisplaySettingsSignal = QtCore.Signal()
 
-#    optionsUpdateSignal = QtCore.pyqtSignal()    
+#    optionsUpdateSignal = QtCore.Signal()
     
-    resetSignal = QtCore.pyqtSignal()
-    initDataSignal = QtCore.pyqtSignal()
+    resetSignal = QtCore.Signal()
+    initDataSignal = QtCore.Signal()
 
     def __init__(self, parent):
         super(Signals, self).__init__()

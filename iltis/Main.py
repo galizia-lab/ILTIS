@@ -6,7 +6,7 @@ Created on Wed Apr  1 13:29:30 2015
 """
 import sys
 import os
-from PyQt5 import QtGui, QtCore, QtWidgets
+from qtpy import QtGui, QtCore, QtWidgets
 import pyqtgraph as pg
 
 

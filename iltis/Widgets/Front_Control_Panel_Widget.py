@@ -5,7 +5,7 @@ Created on Wed Apr  1 13:11:53 2015
 @author: georg
 """
 
-from PyQt5 import QtCore, QtWidgets
+from qtpy import QtCore, QtWidgets
 from .Data_Selector_Widget import Data_Selector_Widget
 from .ROI_Manager_Widget import ROI_Manager_Widget
 

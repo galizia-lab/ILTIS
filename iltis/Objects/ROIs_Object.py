@@ -6,7 +6,7 @@ Created on Wed Apr  1 13:21:29 2015
 """
 import math
 
-from PyQt5 import QtCore, QtWidgets
+from qtpy import QtCore, QtWidgets
 import pyqtgraph as pg
 import numpy as np
 

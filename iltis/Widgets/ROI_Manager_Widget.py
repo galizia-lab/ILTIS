@@ -4,7 +4,7 @@ Created on Wed Apr 15 14:58:09 2015
 
 @author: georg
 """
-from PyQt5 import QtWidgets
+from qtpy import QtWidgets
 import numpy as np
 
 

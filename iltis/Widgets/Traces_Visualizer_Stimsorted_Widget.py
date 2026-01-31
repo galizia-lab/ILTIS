@@ -4,7 +4,7 @@ Created on Wed Apr 15 15:00:08 2015
 
 @author: georg
 """
-from PyQt5 import QtWidgets
+from qtpy import QtWidgets
 import pyqtgraph as pg
 import numpy as np
 

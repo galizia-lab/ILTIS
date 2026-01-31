@@ -5,7 +5,7 @@ Created on Wed Apr  1 13:02:55 2015
 @author: georg
 """
 import os
-from PyQt5 import QtCore, QtWidgets, QtGui
+from qtpy import QtCore, QtWidgets, QtGui
 from .Data_Display_Widget import Data_Display_Widget
 from .Front_Control_Panel_Widget import Front_Control_Panel_Widget
 from .Options_Control_Widget import Options_Control_Widget, StringChoiceWidget
