@@ -5,20 +5,27 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = 'iltis'
+readme = "README.md"
+license = "GPL-2.0"
 dynamic = ["version"]
 description = 'ILTIS - an interactive labeled-trial image stack slicer'
 requires-python = ">=3.7"
 dependencies = [
+                   'qtpy',
                    'scipy',
                    'pyqtgraph',
                    'pandas',
                    'matplotlib',
                    'tifffile',
                    'scikit-image',
-                   'PyQt5>=5.12.2,<6'
 ]
-readme = "README.md"
-license = "GPL-2.0"
+
+
+[project.optional-dependencies]
+pyqt5 = [
+    "PyQt5>=5.12.2,<6"
+]
+all = ["iltis[pyqt5]"]
 
 [project.gui-scripts]
 iltis = 'iltis.Main:main'

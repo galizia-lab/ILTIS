@@ -4,7 +4,7 @@ Created on Wed Apr  1 13:10:05 2015
 
 @author: georg
 """
-from PyQt5 import QtGui, QtWidgets
+from qtpy import QtGui, QtWidgets
 import pyqtgraph as pg
 from pyqtgraph import dockarea as pgd
 from pyqtgraph.dockarea.Dock import DockLabel

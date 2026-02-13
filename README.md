@@ -61,14 +61,24 @@ If a `dt` value is specified in the Options, the corresponding time vector is ca
 
 
 ## Installation
-1. Install the python 3.7 version of [Anaconda](https://www.anaconda.com/distribution/) for your operating system.
+1. Install the python 3.7 version or above of [Anaconda](https://www.anaconda.com/distribution/) for your operating system.
 2. Download the repostory `ILTIS` and extract it.
 3. Navigate into the repository containing ILTIS.<br>`cd <path of the repository ILTIS>`
 4. Open a terminal (Linux and Mac) or Powershell (Windows) and create an environment using the YAML file provided: <br> `conda env create -f ./env/env_cross_platform.yaml`
 (More on managing conda environments [here](https://conda.io/docs/user-guide/tasks/manage-environments.html))
 5. Activate the conda environment created <br>`conda activate iltis`
-6. Make sure that the file `setup.py` in your current path by looking at the output of the command `ls` (Linux/Mac) or `dir` (Windows).
+6. Make sure that the file `pyproject.toml` in your current path by looking at the output of the command `ls` (Linux/Mac) or `dir` (Windows).
 7. Install ILTIS into the environment<br>`pip install ./` 
+
+```
+NOTE:
+---
+[Advanced usage]
+ILTIS can also be installed and used without conda. Create a virtual python environment and install the package `ILTIS` into it using pip. 
+Important to note here is that PyQt5 is not a direct dependency, but an optional one. You will need to specify the optional dependency "all" to make sure PyQt gets installed
+Example `pip install -e "./[all]"` 
+For more info see the example titled "Install a package with extras, i.e., optional dependencies" here: https://pip.pypa.io/en/stable/cli/pip_install/#examples
+``` 
 
 ## Starting ILTIS
 1. Open a terminal (Linux and Mac) or Powershell (Windows) and activate the conda environment created <br>`conda activate iltis`

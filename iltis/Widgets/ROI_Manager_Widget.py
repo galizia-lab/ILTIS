@@ -4,7 +4,7 @@ Created on Wed Apr 15 14:58:09 2015
 
 @author: georg
 """
-from PyQt5 import QtWidgets
+from qtpy import QtWidgets
 import numpy as np
 
 
@@ -59,7 +59,7 @@ class ROI_Manager_Widget(QtWidgets.QTableWidget):
 
         self.blockSignals(True)  # signal block because itemSelectionChange would be emitted
         for i, state in enumerate(self.Main.ROIs.get_active_ROIs()[0]):
-            self.item(i, 0).setSelected(state)
+            self.item(i, 0).setSelected(bool(state))
         self.blockSignals(False)
 
     def selection_changed(self):

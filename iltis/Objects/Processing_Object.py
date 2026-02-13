@@ -7,7 +7,7 @@ Created on Wed Apr 15 14:54:33 2015
 import sys, os
 import numpy as np
 from scipy import ndimage
-from PyQt5.QtGui import QColor
+from qtpy.QtGui import QColor
 import pyqtgraph as pg
 
 
