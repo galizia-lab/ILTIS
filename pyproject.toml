@@ -26,6 +26,12 @@ pyqt5 = [
     "PyQt5>=5.12.2,<6"
 ]
 all = ["iltis[pyqt5]"]
+dev = [
+    "pytest-qt",
+    "pytest",
+    "ipdb",
+    "pyyaml"
+]
 
 [project.gui-scripts]
 iltis = 'iltis.Main:main'
