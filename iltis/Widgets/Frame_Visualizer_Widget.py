@@ -33,19 +33,32 @@ class Frame_Visualizer_Widget(pg.GraphicsView):
         self.ViewBox.setAcceptDrops(True)  # for drag and drop interaction? put it to the Data Selector!
         self.setCentralItem(self.ViewBox)
 
+        # Add logging to debug overflow warnings
+        import logging
+        logging.basicConfig(level=logging.WARNING)
+        self.logger = logging.getLogger('Frame_Visualizer_Widget')
+        self.logger.warning('ViewBox initialized. Monitoring for overflow conditions.')
+
         pass
 
     def init_data(self):
         ### initializing image and LUTwidget
         for n in range(self.Main.Data.nTrials):
-            ImageItem_raw = pg.ImageItem(self.Main.Data.raw[:,:,self.frame,n])
+            frame_raw = self.Main.Data.raw[:,:,self.frame,n]
+            frame_dFF = self.Main.Data.dFF[:,:,self.frame,n]
+            self.logger.debug(f'Initializing ImageItem for trial {n}, frame {self.frame}')
+            self.logger.debug(f'Raw data shape: {frame_raw.shape}, dtype: {frame_raw.dtype}, min: {frame_raw.min()}, max: {frame_raw.max()}')
+            self.logger.debug(f'dFF data shape: {frame_dFF.shape}, dtype: {frame_dFF.dtype}, min: {frame_dFF.min()}, max: {frame_dFF.max()}')
+            
+            ImageItem_raw = pg.ImageItem(frame_raw)
             self.ViewBox.addItem(ImageItem_raw)
             self.ImageItems.append(ImageItem_raw)
 
-            ImageItem_dFF = pg.ImageItem(self.Main.Data.dFF[:,:,self.frame,n])
+            ImageItem_dFF = pg.ImageItem(frame_dFF)
             self.ViewBox.addItem(ImageItem_dFF)
             self.ImageItems_dFF.append(ImageItem_dFF)
 
+        self.logger.debug('Calling ViewBox.autoRange()')
         self.ViewBox.autoRange()
         pass
 
@@ -100,11 +113,19 @@ class Frame_Visualizer_Widget(pg.GraphicsView):
     def update_frame(self):
         for ind in self.active_inds:
             if self.Main.Options.view['show_avg']:
-                self.ImageItems_dFF[ind].setImage(np.average(self.Main.Data.dFF[:,:,:,ind],axis=2), autoLevels=False)
-                self.ImageItems[ind].setImage(np.average(self.Main.Data.raw[:,:,:,ind],axis=2), autoLevels=False)
+                avg_dFF = np.average(self.Main.Data.dFF[:,:,:,ind],axis=2)
+                avg_raw = np.average(self.Main.Data.raw[:,:,:,ind],axis=2)
+                self.logger.debug(f'Setting average dFF image for trial {ind}, shape: {avg_dFF.shape}, dtype: {avg_dFF.dtype}')
+                self.logger.debug(f'Setting average raw image for trial {ind}, shape: {avg_raw.shape}, dtype: {avg_raw.dtype}')
+                self.ImageItems_dFF[ind].setImage(avg_dFF, autoLevels=False)
+                self.ImageItems[ind].setImage(avg_raw, autoLevels=False)
             else:
-                self.ImageItems_dFF[ind].setImage(self.Main.Data.dFF[:,:,self.frame,ind], autoLevels=False)
-                self.ImageItems[ind].setImage(self.Main.Data.raw[:,:,self.frame,ind], autoLevels=False)
+                frame_dFF = self.Main.Data.dFF[:,:,self.frame,ind]
+                frame_raw = self.Main.Data.raw[:,:,self.frame,ind]
+                self.logger.debug(f'Setting frame dFF image for trial {ind}, frame {self.frame}, shape: {frame_dFF.shape}, dtype: {frame_dFF.dtype}')
+                self.logger.debug(f'Setting frame raw image for trial {ind}, frame {self.frame}, shape: {frame_raw.shape}, dtype: {frame_raw.dtype}')
+                self.ImageItems_dFF[ind].setImage(frame_dFF, autoLevels=False)
+                self.ImageItems[ind].setImage(frame_raw, autoLevels=False)
 
         self.update_levels()
         pass

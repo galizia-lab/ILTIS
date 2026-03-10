@@ -51,6 +51,9 @@ class ROIs_Object(QtCore.QObject):
                 pos = self.Main.MainWindow.Data_Display.Frame_Visualizer.ViewBox.mapToView(evt.pos())
                 raw_shape = self.Main.Data.raw.shape
                 if (0 <= pos.x() <= raw_shape[0]) and (0 <= pos.y() <= raw_shape[1]):
+
+                    if self.Main.verbose:
+                        print(f"Adding ROI with mouse click at position {pos.x()}, {pos.y()}")
                     self.add_ROI(pos=np.array([pos.x(), pos.y()]))
 
     def remove_ROI_request(self,evt):
