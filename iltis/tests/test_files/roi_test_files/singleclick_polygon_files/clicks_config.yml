@@ -1,0 +1,15 @@
+type: polygon
+rois:
+  roi1:
+    clicks:
+    - [20.019002191940096, 43.02209857145973]
+  roi2:
+    clicks:
+    - [57.0182981330717, 50.738897724917344]
+  roi3:
+    clicks:
+    - [65.97529715047787, 20.147301080853225]
+  roi4:
+    clicks:
+    - [31.456400937243345, 13.18840184425305]
+expected_file_stem: square_polygons_rois_only_expected
