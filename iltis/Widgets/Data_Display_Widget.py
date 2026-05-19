@@ -5,6 +5,7 @@ Created on Wed Apr  1 13:10:05 2015
 @author: georg
 """
 from qtpy import QtGui, QtWidgets
+from qtpy.QtGui import QGuiApplication
 import pyqtgraph as pg
 from pyqtgraph import dockarea as pgd
 from pyqtgraph.dockarea.Dock import DockLabel
@@ -79,8 +80,7 @@ class Data_Display_Widget(QtWidgets.QMainWindow): # needs to be a QMainWindow to
         self.DockArea.getContainer(self.TracesDock).tabClicked(self.TracesDock.label)
 
         # sizing the FrameDock bigger than TracesDock
-        DesktopWidget = QtWidgets.QDesktopWidget()
-        qrect = DesktopWidget.screenGeometry()
+        qrect = QGuiApplication.primaryScreen().geometry()
         height, width = qrect.height(), qrect.width()
         self.FrameDock.setStretch(y=(height/3.0) * 2)
         self.TracesDock.setStretch(y=(height/3.0) * 1)
