@@ -4,10 +4,68 @@ import tempfile
 import numpy as np
 import pytest
 import tifffile
+from qtpy.QtCore import QPointF
+from qtpy import QtCore
 
 import iltis.Widgets.MainWindow_Widget
 from iltis.Main import Main
 from iltis.tests import test_files
+
+
+class MockMouseEvent:
+    """Mock mouse event compatible with both PyQt5 and PyQt6.
+    
+    This class provides a Qt5/Qt6 compatible mock for simulating mouse
+    events in tests without relying on the QMouseEvent constructor,
+    which has different signatures between Qt5 and Qt6.
+    
+    The mock is designed to work with pyqtgraph's sigMouseClicked signal
+    and the ILTIS ROI creation code, which expects specific event attributes.
+    """
+
+    def __init__(self, scene_pos: QPointF):
+        self._scene_pos = scene_pos
+        self.currentItem = None
+
+    def pos(self):
+        """Return position as QPointF (float) - used by pyqtgraph's mapToView."""
+        return self._scene_pos
+
+    def posF(self):
+        """Return position as QPointF (float)."""
+        return self._scene_pos
+
+    def scenePos(self):
+        """Return scene position as QPointF."""
+        return self._scene_pos
+
+    def button(self):
+        """Return the button that triggered the event.
+        
+        Returns 1 for left button, which is the value expected by
+        the ILTIS ROI creation code (evt.button() == 1).
+        """
+        return 1
+
+    def buttons(self):
+        """Return the current button state."""
+        return QtCore.Qt.LeftButton
+
+    def modifiers(self):
+        """Return the keyboard modifier state."""
+        return QtCore.Qt.NoModifier
+
+    def type(self):
+        """Return the event type."""
+        return QtCore.QEvent.MouseButtonPress
+
+    def accept(self):
+        """Accept the event."""
+        pass
+
+    def ignore(self):
+        """Ignore the event."""
+        pass
 
 
 def get_test_file_path():
