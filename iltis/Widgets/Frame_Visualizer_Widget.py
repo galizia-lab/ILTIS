@@ -6,6 +6,7 @@ Created on Wed Apr 15 14:59:05 2015
 """
 import pyqtgraph as pg
 import numpy as np
+from qtpy.QtGui import QPainter
 
 class Frame_Visualizer_Widget(pg.GraphicsView):
 
@@ -143,13 +144,16 @@ class Frame_Visualizer_Widget(pg.GraphicsView):
             self.ImageItems_dFF = []
         pass
 
-    def set_composition_mode(self,n):
+    def set_composition_mode(self, n):
         """ set the composition mode for different blending properties """
+        # Get the composition mode name from the list and convert to QPainter.CompositionMode enum
+        mode_name = self.Main.Options.QtCompositionModes[n]
+        mode = getattr(QPainter.CompositionMode, f'CompositionMode_{mode_name}')
         for ImageItem in self.ImageItems:
-            ImageItem.setCompositionMode(n)
+            ImageItem.setCompositionMode(mode)
 
         for ImageItem in self.ImageItems_dFF:
-            ImageItem.setCompositionMode(n)
+            ImageItem.setCompositionMode(mode)
 
     def mouseMoved(self, evt):
         """ keep for debug """
