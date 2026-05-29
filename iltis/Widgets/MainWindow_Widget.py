@@ -45,8 +45,7 @@ class MainWindow_Widget(QtWidgets.QMainWindow):
     def init_UI(self):
         """ """
         # own layout
-#        DesktopWidget = QtGui.QDesktopWidget()
-#        qrect = DesktopWidget.screenGeometry()
+#        qrect = QGuiApplication.primaryScreen().geometry()
 #        height, width = qrect.height(), qrect.width()
 
 #        self.resize(width*0.7,height*0.7)

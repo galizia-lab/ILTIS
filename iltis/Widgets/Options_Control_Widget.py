@@ -79,8 +79,8 @@ class Options_Control_Widget(QtWidgets.QTabWidget):
             tab = self.widget(tab_ind)
             FormLayout = tab.layout()
             for row_ind in range(FormLayout.rowCount()):
-                label = FormLayout.itemAt(row_ind,0).widget()
-                widget = FormLayout.itemAt(row_ind,1).widget()
+                label = FormLayout.itemAt(row_ind, QtWidgets.QFormLayout.LabelRole).widget()
+                widget = FormLayout.itemAt(row_ind, QtWidgets.QFormLayout.FieldRole).widget()
                 rows.append([label,widget])
         return rows
 

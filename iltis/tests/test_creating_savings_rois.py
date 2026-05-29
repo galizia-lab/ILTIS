@@ -4,19 +4,20 @@ Test module for creating and saving ROI files.
 """
 
 import pathlib as pl
+import shutil
 
 import pytest
 import yaml
-from PyQt5.QtCore import QPointF
-from qtpy import QtCore
-from qtpy.QtGui import QMouseEvent
-from qtpy.QtTest import QSignalSpy
+from qtpy.QtCore import QPointF
 
 from iltis.Main import Main
 from iltis.Widgets.Frame_Visualizer_Widget import Frame_Visualizer_Widget
 from iltis.tests.test_image_loading import trigger_open_action
 from iltis.Widgets.Options_Control_Widget import StringChoiceWidget
+from iltis.tests.conftest import MockMouseEvent
 
+import numpy as np
+import tifffile
 
 
 def set_roi_type(iltis_main_object: Main,
@@ -40,15 +41,9 @@ def set_roi_type(iltis_main_object: Main,
 
 def simulate_click_frame_visualizer(frame_visualizer: Frame_Visualizer_Widget, click_pos):
 
-    # Create a mock mouse event
+    # Create a mock mouse event compatible with both Qt5 and Qt6
     pos = frame_visualizer.ViewBox.mapViewToScene(QPointF(*click_pos))
-    press_evt = QMouseEvent(
-        QtCore.QEvent.MouseButtonPress,
-        pos.toPoint(),
-        QtCore.Qt.LeftButton,
-        QtCore.Qt.LeftButton,
-        QtCore.Qt.NoModifier,
-    )
+    press_evt = MockMouseEvent(pos)
     press_evt.currentItem = frame_visualizer.ViewBox
 
     # Simulate the mouse click
@@ -128,13 +123,19 @@ def check_compare_roi_output(expected_dir: pl.Path, expected_stem: str, output_d
     with open(expected_roi_file_path, "r") as expected_file:
         expected_content = expected_file.read()
 
+    if saved_content != expected_content:
+        # Copy the saved ROI file next to the expected ROI file for debugging
+        mismatch_roi_path = expected_dir / f"{expected_stem}_saved_at_last_mismatch.roi"
+        shutil.copy2(output_file_path, mismatch_roi_path)
+        print(f"Copied saved ROI file to: {mismatch_roi_path}")
+
     assert (
             saved_content == expected_content
     ), "Saved ROI file does not match expected ROI file"
 
     # Check if the mask file was also saved
-    mask_file_str = output_dir / f"{output_file_path.stem}_mask.tif"
-    assert pl.Path(mask_file_str).exists(), "Mask file was not saved"
+    mask_file_path = output_dir / f"{output_file_path.stem}_mask.tif"
+    assert mask_file_path.exists(), "Mask file was not saved"
 
     # Compare saved mask file to expected mask file
     expected_mask_file_path = (
@@ -142,13 +143,17 @@ def check_compare_roi_output(expected_dir: pl.Path, expected_stem: str, output_d
     )
 
     # Read both mask files and compare
-    import numpy as np
-    import tifffile
 
-    saved_mask = tifffile.imread(mask_file_str)
+    saved_mask = tifffile.imread(mask_file_path)
     expected_mask = tifffile.imread(expected_mask_file_path)
 
-    assert np.array_equal(
+    if not np.allclose(saved_mask, expected_mask):
+        # Copy the saved mask file next to the expected mask file for debugging
+        mismatch_mask_path = expected_dir / f"{expected_stem}_saved_at_last_mismatch_mask.tif"
+        shutil.copy2(mask_file_path, mismatch_mask_path)
+        print(f"Copied saved mask file to: {mismatch_mask_path}")
+
+    assert np.allclose(
         saved_mask, expected_mask
     ), "Saved mask file does not match expected mask file"
 
@@ -157,7 +162,7 @@ def create_roi_and_save_check(
     iltis_main_object: Main,
     yml_file_path_str: str,
     monkeypatch: pytest.MonkeyPatch,
-    tmp_path: pl.Path,
+    tmp_path: pl.Path
 ):
     """
     Helper function to test the creation and saving of ROI files.
@@ -249,7 +254,7 @@ def test_roi_creation_saving_multiclick_polygon(
     test_tif_file: str,
     test_multiclick_polygon_roi_config_file: str,
     monkeypatch: pytest.MonkeyPatch,
-    tmp_path: pl.Path,
+    tmp_path: pl.Path
 ):
     """
     test creation and saving of multiclick polygon rois

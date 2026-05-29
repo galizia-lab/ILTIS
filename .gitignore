@@ -109,3 +109,7 @@ venv.bak/
 
 # manually added
 *~
+
+# Test mismatch files, saved for debugging
+*_saved_at_last_mismatch.roi
+*_saved_at_last_mismatch_mask.tif
